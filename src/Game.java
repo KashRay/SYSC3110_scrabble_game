@@ -91,5 +91,20 @@ public class Game {
         }
     }
 
+    public static void main(String[] args) {
+        Game game = new Game();
+        game.addPlayer("Abdullah");
+        game.addPlayer("Adrian");
+        game.addPlayer("Ismael");
+        game.addPlayer("Rayane");
 
+        game.startGame();
+        int turns = 4;
+        while (turns > 0) {
+            game.displayBoard();
+            game.makeMove(game.getCurrentPlayer());
+            game.nextTurn();
+            turns -= 1;
+        }
+    }
 }
