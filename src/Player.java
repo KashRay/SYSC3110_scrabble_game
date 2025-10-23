@@ -2,6 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
+    public static final int HAND_SIZE = 7;
     private final String name;
     private final List<Tile> hand;
     private int score;
@@ -28,19 +29,21 @@ public class Player {
         this.score += score;
     }
 
+    public void addTile(TileBag bag) {
+        while (hand.size() <  HAND_SIZE && !bag.isEmpty()) {
+            hand.add(bag.drawTile());
+        }
+    }
+
     public boolean removeTile(Tile tile) {
         return hand.remove(tile);
     }
 
-    public String handToString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(name).append("'s hand: ");
-        for (Tile t : hand) sb.append(t).append(" ");
-        return sb.toString();
-    }
-
     @Override
     public String toString() {
-        return name + " (" + score + " pts)";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(").append(score).append(" pts) ").append(name).append("'s hand: ");
+        for (Tile t : hand) sb.append(t).append(" ");
+        return sb.toString();
     }
 }
