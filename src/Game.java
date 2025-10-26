@@ -104,7 +104,10 @@ public class Game {
                 String dir = scanner.nextLine().trim().toUpperCase();
                 Direction direction = dir.equals("H") ? Direction.HORIZONTAL : Direction.VERTICAL;
 
-                if (game.makeMove(word, row, col, direction)) break;
+                if (game.makeMove(word, row, col, direction)) {
+                    currentPlayer.addTile(tileBag);
+                    break;
+                }
                 else continue;
             }
 
