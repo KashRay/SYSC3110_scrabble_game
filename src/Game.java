@@ -1,19 +1,21 @@
 import java.util.*;
 
 public class Game {
-    Scanner scanner = new Scanner(System.in);
     private final Board board;
-    private final TileBag tileBag;
-    private final Dictionary dictionary;
+    private static TileBag tileBag;
     private final List<Player> players;
     private int currentPlayer;
+    private boolean isFirstMove = true;
+    private final MoveValidator moveValidator;
 
     public Game() {
-        this.board = new Board();
-        this.tileBag = new TileBag();
-        this.dictionary = new Dictionary();
-        this.players = new ArrayList<>();
-        this.currentPlayer = 0;
+        board = new Board();
+        tileBag = new TileBag();
+        Dictionary dictionary = new Dictionary();
+        dictionary.loadFromFile("wordlist.txt");
+        players = new ArrayList<>();
+        currentPlayer = 0;
+        moveValidator = new MoveValidator(board, dictionary);
     }
 
     public void addPlayer(String name) {
@@ -24,7 +26,9 @@ public class Game {
         for (Player player : players) {
             player.addTile(tileBag);
         }
+        isFirstMove = true;
         System.out.println("Game started with " + players.size() + " players!");
+
     }
 
     public Player getCurrentPlayer() {
@@ -43,68 +47,70 @@ public class Game {
         }
     }
 
-    public void makeMove(Player player) {
-        String move = "";
+    public boolean makeMove(String word, int row, int col, Direction direction) {
+        Player currentPlayer = getCurrentPlayer();
+        Move move = new Move(word, row, col, direction, currentPlayer);
 
-        System.out.println("Player " + player.getName() + " is making a move! To make a move, enter the command in the format <LETTER> <ROW> <COLUMN> (e.g.: 'A 7 8'). When you are done making a move, type 'done'.");
-        while (!move.equals("done")) {
-            move = scanner.nextLine().trim();
+        if (moveValidator.isValidMove(move, isFirstMove)) {
+            for (int i = 0; i < word.length(); i++) {
+                int c = col + (direction == Direction.HORIZONTAL ? i : 0);
+                int r = row + (direction == Direction.VERTICAL ? i : 0);
 
-            if (move.equals("done")) continue;
-            String[] parts = move.split(" ");
-
-            if (parts.length != 3) {
-                System.out.println("ERROR! Please enter a valid move. Format should be <LETTER> <ROW> <COLUMN>.");
-                continue;
-            }
-
-            char letter = Character.toUpperCase(parts[0].charAt(0));
-            int row, col;
-
-            try {
-                row = Integer.parseInt(parts[1]);
-                col = Integer.parseInt(parts[2]);
-            } catch (NumberFormatException e) {
-                System.out.println("ERROR! Invalid coordinates. Must be integers.");
-                continue;
-            }
-
-            Tile selectedTile = null;
-            for (Tile tile : player.getHand()) {
-                if (tile.getLetter() == letter) {
-                    selectedTile = tile;
-                    break;
+                if (board.getTile(r, c) == null) {
+                    Tile tile = currentPlayer.removeTileByLetter(word.charAt(i));
+                    board.placeTile(r, c, tile);
                 }
             }
 
-            if (selectedTile == null) {
-                System.out.println("ERROR! You don't have the letter '" + letter + "' in your hand.");
-                continue;
-            }
-
-            if (board.placeTile(row, col, selectedTile)) {
-                System.out.println(player.getName() + " placed " + letter + " at (" +  row + "," + col + ").");
-            }
-            else {
-                System.out.println("ERROR! Invalid move. Position is either already occupied, or out of bounds.");
-            }
+            isFirstMove = false;
+            System.out.println(currentPlayer.getName() + " successfully placed: " + word);
+            nextTurn();
+            return true;
         }
+        return false;
     }
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         Game game = new Game();
-        game.addPlayer("Abdullah");
-        game.addPlayer("Adrian");
-        game.addPlayer("Ismael");
-        game.addPlayer("Rayane");
+        boolean playable = true;
+
+        System.out.println("Welcome to SCRABBLE!");
+        System.out.print("Please enter the number of players (2-4): ");
+        int numPlayers = Integer.parseInt(scanner.nextLine());
+
+        for (int i = 1; i <= numPlayers; i++) {
+            System.out.print("Enter a name for Player " + i + ": ");
+            String name = scanner.nextLine();
+            game.addPlayer(name);
+        }
 
         game.startGame();
-        int turns = 4;
-        while (turns > 0) {
+
+        while (playable) {
             game.displayBoard();
-            game.makeMove(game.getCurrentPlayer());
-            game.nextTurn();
-            turns -= 1;
+            Player currentPlayer = game.getCurrentPlayer();
+
+            while (true) {
+                System.out.println("It's " + currentPlayer.getName() + "'s turn!");
+                System.out.print("Please enter a word: ");
+                String word = scanner.nextLine().toUpperCase().trim();
+
+                System.out.print("Please enter a starting column (0-" + (Board.SIZE - 1) + "): ");
+                int col = Integer.parseInt(scanner.nextLine());
+                System.out.print("Please enter a starting row (0-" + (Board.SIZE - 1) + "): ");
+                int row = Integer.parseInt(scanner.nextLine());
+                System.out.print("Please enter a direction (H - horizontal, V - vertical): ");
+                String dir = scanner.nextLine().trim().toUpperCase();
+                Direction direction = dir.equals("H") ? Direction.HORIZONTAL : Direction.VERTICAL;
+
+                if (game.makeMove(word, row, col, direction)) break;
+                else continue;
+            }
+
+            if (tileBag.isEmpty()) {
+                playable = false;
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ public class Dictionary {
                 String word = scanner.nextLine().trim().toUpperCase();
                 if (!word.isEmpty()) words.add(word);
             }
+            System.out.println("Loaded " + words.size() + " words from " + filename);
         } catch (IOException e) {
             System.err.println("Error loading dictionary: " + e.getMessage());
         }

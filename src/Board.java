@@ -1,5 +1,6 @@
 public class Board {
     public static final int SIZE = 15;
+    public static final int CENTER = Board.SIZE / 2;
     private final Tile[][] board;
 
     public Board() {
@@ -21,6 +22,16 @@ public class Board {
     public Tile getTile(int row, int col) {
         if (!isInBounds(row, col)) return null;
         return board[row][col];
+    }
+
+    public boolean hasNeighbor(int row, int col) {
+        int[][] directions = {{1,0},{-1,0},{0,1},{0,-1}};
+        for (int[] d : directions) {
+            int r = row + d[0], c = col + d[1];
+            if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && board[r][c] != null)
+                return true;
+        }
+        return false;
     }
 
     @Override

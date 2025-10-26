@@ -18,6 +18,7 @@ public class TileBag {
     }
 
     private void initializeTiles() {
+        tiles.clear();
         addTile('A', 1, 9);
         addTile('B', 3, 2);
         addTile('C', 3, 2);

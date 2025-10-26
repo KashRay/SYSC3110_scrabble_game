@@ -35,8 +35,13 @@ public class Player {
         }
     }
 
-    public boolean removeTile(Tile tile) {
-        return hand.remove(tile);
+    public Tile removeTileByLetter(char letter) {
+        for (int i = 0; i < hand.size(); i++) {
+            if (hand.get(i).letter() == letter) {
+                return hand.remove(i);
+            }
+        }
+        return null;
     }
 
     @Override
