@@ -35,9 +35,17 @@ public class Player {
         }
     }
 
+    public void addTile(Tile tile) {
+        hand.add(tile);
+    }
+
+    public Tile removeTile() {
+        return hand.remove(0);
+    }
+
     public Tile removeTileByLetter(char letter) {
         for (int i = 0; i < hand.size(); i++) {
-            if (hand.get(i).letter() == letter) {
+            if (hand.get(i).getLetter() == letter) {
                 return hand.remove(i);
             }
         }
