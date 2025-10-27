@@ -2,11 +2,10 @@ import java.util.*;
 
 public class Game {
     private final Board board;
-    private TileBag tileBag;
-    private Dictionary dictionary;
+    private final TileBag tileBag;
+    private final Dictionary dictionary;
     private final List<Player> players;
     private int currentPlayer;
-    private boolean isFirstMove = true;
     private static ArrayList<Tile> placedTiles;
     public boolean didExchange;
 
@@ -17,7 +16,7 @@ public class Game {
         dictionary.loadFromFile("wordlist.txt");
         players = new ArrayList<>();
         currentPlayer = 0;
-        placedTiles = new ArrayList<Tile>();
+        placedTiles = new ArrayList<>();
         didExchange = false;
     }
 
@@ -29,7 +28,6 @@ public class Game {
         for (Player player : players) {
             player.addTile(tileBag);
         }
-        isFirstMove = true;
         System.out.println("Game started with " + players.size() + " players!");
 
     }
@@ -75,7 +73,7 @@ public class Game {
             }
 
             if (move.equals("exchange")) {
-                while (player.getHand().size() != 0) {
+                while (!player.getHand().isEmpty()) {
                     tileBag.addTile(player.removeTile());
                 }
                 tileBag.shuffle();
@@ -145,15 +143,15 @@ public class Game {
 
         if (sameRow) {
             placedTiles.sort(Comparator.comparingInt(Tile::getX));
-            start = placedTiles.get(0).getX();
-            end = placedTiles.get(placedTiles.size() - 1).getX();
-            otherCoord = placedTiles.get(0).getY();
+            start = placedTiles.getFirst().getX();
+            end = placedTiles.getLast().getX();
+            otherCoord = placedTiles.getFirst().getY();
         }
         else {
             placedTiles.sort(Comparator.comparingInt(Tile::getY));
-            start = placedTiles.get(0).getY();
-            end = placedTiles.get(placedTiles.size() - 1).getY();
-            otherCoord = placedTiles.get(0).getX();
+            start = placedTiles.getFirst().getY();
+            end = placedTiles.getLast().getY();
+            otherCoord = placedTiles.getFirst().getX();
         }
         System.out.println(start + "\t" + end + "\t" + otherCoord);
 
@@ -162,7 +160,7 @@ public class Game {
             return false;
         }
         
-        if (firstTurn && board.getTile(board.CENTER, board.CENTER) == null) {
+        if (firstTurn && board.getTile(Board.CENTER, Board.CENTER) == null) {
             System.out.println("ERROR! The first word must pass through the center.");
             return false;
         }
@@ -181,10 +179,18 @@ public class Game {
         TileBag tilebag = game.getTileBag();
         boolean playable = true;
         boolean firstTurn = true;
+        int numPlayers;
 
         System.out.println("Welcome to SCRABBLE!");
-        System.out.print("Please enter the number of players (2-4): ");
-        int numPlayers = Integer.parseInt(scanner.nextLine());
+        while (true) {
+            System.out.print("Please enter the number of players (2-4): ");
+            numPlayers = Integer.parseInt(scanner.nextLine());
+            if  (numPlayers < 2 || numPlayers > 4) {
+                System.out.println("ERROR! Please enter a number between 2 and 4.");
+                continue;
+            }
+            break;
+        }
 
         for (int i = 1; i <= numPlayers; i++) {
             System.out.print("Enter a name for Player " + i + ": ");
@@ -220,7 +226,6 @@ public class Game {
                         game.getCurrentPlayer().addTile(board.removeTile(tile.getX(), tile.getY()));
                     }
                     placedTiles.clear();
-                    continue;
                 }
             }
 
