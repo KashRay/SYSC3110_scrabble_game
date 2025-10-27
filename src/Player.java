@@ -35,8 +35,21 @@ public class Player {
         }
     }
 
-    public boolean removeTile(Tile tile) {
-        return hand.remove(tile);
+    public void addTile(Tile tile) {
+        hand.add(tile);
+    }
+
+    public Tile removeTile() {
+        return hand.remove(0);
+    }
+
+    public Tile removeTileByLetter(char letter) {
+        for (int i = 0; i < hand.size(); i++) {
+            if (hand.get(i).getLetter() == letter) {
+                return hand.remove(i);
+            }
+        }
+        return null;
     }
 
     @Override

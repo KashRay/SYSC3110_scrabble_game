@@ -1,19 +1,24 @@
 import java.util.*;
 
 public class Game {
-    Scanner scanner = new Scanner(System.in);
     private final Board board;
-    private final TileBag tileBag;
-    private final Dictionary dictionary;
+    private TileBag tileBag;
+    private Dictionary dictionary;
     private final List<Player> players;
     private int currentPlayer;
+    private boolean isFirstMove = true;
+    private static ArrayList<Tile> placedTiles;
+    public boolean didExchange;
 
     public Game() {
-        this.board = new Board();
-        this.tileBag = new TileBag();
-        this.dictionary = new Dictionary();
-        this.players = new ArrayList<>();
-        this.currentPlayer = 0;
+        board = new Board();
+        tileBag = new TileBag();
+        dictionary = new Dictionary();
+        dictionary.loadFromFile("wordlist.txt");
+        players = new ArrayList<>();
+        currentPlayer = 0;
+        placedTiles = new ArrayList<Tile>();
+        didExchange = false;
     }
 
     public void addPlayer(String name) {
@@ -24,7 +29,17 @@ public class Game {
         for (Player player : players) {
             player.addTile(tileBag);
         }
+        isFirstMove = true;
         System.out.println("Game started with " + players.size() + " players!");
+
+    }
+
+    public Board getBoard() {
+        return this.board;
+    }
+
+    public TileBag getTileBag() {
+        return this.tileBag;
     }
 
     public Player getCurrentPlayer() {
@@ -44,13 +59,31 @@ public class Game {
     }
 
     public void makeMove(Player player) {
+        Scanner scanner = new Scanner(System.in);
         String move = "";
 
-        System.out.println("Player " + player.getName() + " is making a move! To make a move, enter the command in the format <LETTER> <ROW> <COLUMN> (e.g.: 'A 7 8'). When you are done making a move, type 'done'.");
-        while (!move.equals("done")) {
+        System.out.println("Player " + player.getName() + " is making a move! To make a move, enter the command in the format <LETTER> <ROW> <COLUMN> (e.g.: 'A 7 8').\nIf you wish to exchange your letters, type 'exchange'.\nWhen you are done making a move, type 'done'.");
+        while (!move.equals("done") && ! move.equals("exchange")) {
             move = scanner.nextLine().trim();
 
-            if (move.equals("done")) continue;
+            if (move.equals("done")) {
+                if (placedTiles.isEmpty()) {
+                    System.out.println("You have to place at least one letter.");
+                    move = "";
+                }    
+                continue;
+            }
+
+            if (move.equals("exchange")) {
+                while (player.getHand().size() != 0) {
+                    tileBag.addTile(player.removeTile());
+                }
+                tileBag.shuffle();
+                player.addTile(tileBag);
+                didExchange = true;
+                continue;
+            }
+
             String[] parts = move.split(" ");
 
             if (parts.length != 3) {
@@ -83,6 +116,8 @@ public class Game {
             }
 
             if (board.placeTile(row, col, selectedTile)) {
+                selectedTile.setCoords(row, col);
+                placedTiles.add(selectedTile);
                 System.out.println(player.getName() + " placed " + letter + " at (" +  row + "," + col + ").");
             }
             else {
@@ -91,20 +126,107 @@ public class Game {
         }
     }
 
+    public boolean ValidateMove(boolean firstTurn) {
+        boolean sameRow = true;
+        boolean sameCol = true;
+        for (int i = 1; i < placedTiles.size(); i++) {
+            if (placedTiles.get(i).getX() != placedTiles.get(i-1).getX()) sameCol = false;
+            if (placedTiles.get(i).getY() != placedTiles.get(i-1).getY()) sameRow = false;
+        }
+
+        if (!sameRow && !sameCol) {
+            System.out.println("ERROR! All tiles must be placed on the same row or coloumn");
+            return false;
+        }
+
+        int start;
+        int end;
+        int otherCoord;
+
+        if (sameRow) {
+            placedTiles.sort(Comparator.comparingInt(Tile::getX));
+            start = placedTiles.get(0).getX();
+            end = placedTiles.get(placedTiles.size() - 1).getX();
+            otherCoord = placedTiles.get(0).getY();
+        }
+        else {
+            placedTiles.sort(Comparator.comparingInt(Tile::getY));
+            start = placedTiles.get(0).getY();
+            end = placedTiles.get(placedTiles.size() - 1).getY();
+            otherCoord = placedTiles.get(0).getX();
+        }
+        System.out.println(start + "\t" + end + "\t" + otherCoord);
+
+        if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
+            System.out.println("Error! The placed tiles must all be used to form one word.");
+            return false;
+        }
+        
+        if (firstTurn && board.getTile(board.CENTER, board.CENTER) == null) {
+            System.out.println("ERROR! The first word must pass through the center.");
+            return false;
+        }
+
+        for (String word: board.getPlacedWords()) {
+            if (!(dictionary.isValidWord(word))) return false; 
+        }
+
+        return true;
+    }
+
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
         Game game = new Game();
-        game.addPlayer("Abdullah");
-        game.addPlayer("Adrian");
-        game.addPlayer("Ismael");
-        game.addPlayer("Rayane");
+        Board board = game.getBoard();
+        TileBag tilebag = game.getTileBag();
+        boolean playable = true;
+        boolean firstTurn = true;
+
+        System.out.println("Welcome to SCRABBLE!");
+        System.out.print("Please enter the number of players (2-4): ");
+        int numPlayers = Integer.parseInt(scanner.nextLine());
+
+        for (int i = 1; i <= numPlayers; i++) {
+            System.out.print("Enter a name for Player " + i + ": ");
+            String name = scanner.nextLine();
+            game.addPlayer(name);
+        }
 
         game.startGame();
-        int turns = 4;
-        while (turns > 0) {
+
+        while (playable) {
             game.displayBoard();
-            game.makeMove(game.getCurrentPlayer());
-            game.nextTurn();
-            turns -= 1;
+            while (true) {
+                game.makeMove(game.getCurrentPlayer());
+                if (game.didExchange){
+                    game.didExchange = false;
+                    game.nextTurn();
+                    break;
+                }
+                else if (game.ValidateMove(firstTurn)) {
+                    int score = 0;
+                    for (Tile tile : placedTiles) {
+                        score += tile.getScore();
+                    }
+                    game.getCurrentPlayer().addScore(score);
+                    game.getCurrentPlayer().addTile(tilebag);
+                    game.nextTurn();
+                    placedTiles.clear();
+                    if (firstTurn) firstTurn = false;
+                    break;
+                }
+                else {
+                    for (Tile tile : placedTiles) {
+                        game.getCurrentPlayer().addTile(board.removeTile(tile.getX(), tile.getY()));
+                    }
+                    placedTiles.clear();
+                    continue;
+                }
+            }
+
+            if (tilebag.isEmpty()) {
+                playable = false;
+            }
         }
     }
 }
