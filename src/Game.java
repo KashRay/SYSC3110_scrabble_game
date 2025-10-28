@@ -7,7 +7,7 @@ public class Game {
     private final List<Player> players;
     private int currentPlayer;
     private static ArrayList<Tile> placedTiles;
-    public boolean didExchange;
+    public boolean didExchangeOrPass;
 
     public Game() {
         board = new Board();
@@ -17,7 +17,7 @@ public class Game {
         players = new ArrayList<>();
         currentPlayer = 0;
         placedTiles = new ArrayList<>();
-        didExchange = false;
+        didExchangeOrPass = false;
     }
 
     public void addPlayer(String name) {
@@ -60,26 +60,36 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
         String move = "";
 
-        System.out.println("Player " + player.getName() + " is making a move! To make a move, enter the command in the format <LETTER> <ROW> <COLUMN> (e.g.: 'A 7 8').\nIf you wish to exchange your letters, type 'exchange'.\nWhen you are done making a move, type 'done'.");
-        while (!move.equals("done") && ! move.equals("exchange")) {
+        System.out.println("Player " + player.getName() + " is making a move! To make a move, enter the command in the format <LETTER> <ROW> <COLUMN> (e.g.: 'A 7 8').");
+        System.out.println("If you wish to exchange your letters, type 'exchange'.");
+        System.out.println("If you wish to pass your turn, type 'pass'.");
+        System.out.println("(When you are done making a move, type 'done'.");
+        while (!move.equals("done") && !move.equals("exchange") && !move.equals("pass")) {
+            System.out.print("Enter a command: ");
             move = scanner.nextLine().trim();
 
-            if (move.equals("done")) {
-                if (placedTiles.isEmpty()) {
-                    System.out.println("You have to place at least one letter.");
-                    move = "";
-                }    
-                continue;
-            }
-
-            if (move.equals("exchange")) {
-                while (!player.getHand().isEmpty()) {
-                    tileBag.addTile(player.removeTile());
+            switch (move) {
+                case "done" -> {
+                    if (placedTiles.isEmpty()) {
+                        System.out.println("ERROR! You have to place at least one letter.");
+                        move = "";
+                    }
+                    continue;
                 }
-                tileBag.shuffle();
-                player.addTile(tileBag);
-                didExchange = true;
-                continue;
+                case "pass" -> {
+                    System.out.println(player.getName() + " skipped their turn.");
+                    didExchangeOrPass = true;
+                    continue;
+                }
+                case "exchange" -> {
+                    while (!player.getHand().isEmpty()) {
+                        tileBag.addTile(player.removeTile());
+                    }
+                    tileBag.shuffle();
+                    player.addTile(tileBag);
+                    didExchangeOrPass = true;
+                    continue;
+                }
             }
 
             String[] parts = move.split(" ");
@@ -116,6 +126,7 @@ public class Game {
             if (board.placeTile(row, col, selectedTile)) {
                 selectedTile.setCoords(row, col);
                 placedTiles.add(selectedTile);
+                System.out.println(board);
                 System.out.println(player.getName() + " placed " + letter + " at (" +  row + "," + col + ").");
             }
             else {
@@ -133,7 +144,7 @@ public class Game {
         }
 
         if (!sameRow && !sameCol) {
-            System.out.println("ERROR! All tiles must be placed on the same row or coloumn");
+            System.out.println("ERROR! All tiles must be placed on the same row or column");
             return false;
         }
 
@@ -153,7 +164,6 @@ public class Game {
             end = placedTiles.getLast().getY();
             otherCoord = placedTiles.getFirst().getX();
         }
-        System.out.println(start + "\t" + end + "\t" + otherCoord);
 
         if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
             System.out.println("Error! The placed tiles must all be used to form one word.");
@@ -204,8 +214,8 @@ public class Game {
             game.displayBoard();
             while (true) {
                 game.makeMove(game.getCurrentPlayer());
-                if (game.didExchange){
-                    game.didExchange = false;
+                if (game.didExchangeOrPass){
+                    game.didExchangeOrPass = false;
                     game.nextTurn();
                     break;
                 }

@@ -1,6 +1,6 @@
 public class Tile {
-    private char letter;
-    private int score;
+    private final char letter;
+    private final int score;
     private int x;
     private int y;
     

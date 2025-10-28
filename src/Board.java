@@ -32,19 +32,9 @@ public class Board {
         return board[row][col];
     }
 
-    public boolean hasNeighbor(int row, int col) {
-        int[][] directions = {{1,0},{-1,0},{0,1},{0,-1}};
-        for (int[] d : directions) {
-            int r = row + d[0], c = col + d[1];
-            if (r >= 0 && r < SIZE && c >= 0 && c < SIZE && board[r][c] != null)
-                return true;
-        }
-        return false;
-    }
-
     public boolean haveEmptySpace(int start, int end, int otherCoord, boolean direction) {
         for (int i = start; i != end + 1; i++) {
-            if (direction) {
+            if (!direction) {
                 if (getTile(otherCoord, i) == null) return false;
             }
             else {
@@ -55,28 +45,28 @@ public class Board {
     }
 
     public ArrayList<String> getPlacedWords() {
-        ArrayList<String> words = new ArrayList<String>();
-        String currentWord = "";
+        ArrayList<String> words = new ArrayList<>();
+        StringBuilder currentWord = new StringBuilder();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (!currentWord.equals("") && board[i][j] == null) {
-                    words.add(currentWord);
-                    currentWord = "";
+                if ((!currentWord.isEmpty()) && board[i][j] == null) {
+                    words.add(currentWord.toString());
+                    currentWord = new StringBuilder();
                 }
                 else if (board[i][j] != null) {
-                    currentWord += board[i][j].getLetter();
+                    currentWord.append(board[i][j].getLetter());
                 }
             }
         }
 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (!currentWord.equals("") && board[j][i] == null) {
-                    words.add(currentWord);
-                    currentWord = "";
+                if (!currentWord.toString().isEmpty() && board[j][i] == null) {
+                    words.add(currentWord.toString());
+                    currentWord = new StringBuilder();
                 }
                 else if (board[j][i] != null) {
-                    currentWord += board[j][i].getLetter();
+                    currentWord.append(board[j][i].getLetter());
                 }
             }
         }
