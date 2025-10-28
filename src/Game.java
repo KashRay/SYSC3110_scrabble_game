@@ -20,10 +20,19 @@ public class Game {
         didExchangeOrPass = false;
     }
 
+    /**
+     * Adds a new player to the game.
+     *
+     * @param name The name of the player to add.
+     */
     public void addPlayer(String name) {
         players.add(new Player(name));
     }
 
+
+    /**
+     * Starts the game by distributing tiles to each player.
+     */
     public void startGame() {
         for (Player player : players) {
             player.addTile(tileBag);
@@ -32,22 +41,37 @@ public class Game {
 
     }
 
+    /**
+     * @return The current game board.
+     */
     public Board getBoard() {
         return this.board;
     }
 
+    /**
+     * @return The tile bag shared among players.
+     */
     public TileBag getTileBag() {
         return this.tileBag;
     }
 
+    /**
+     * @return The player whose turn it currently is.
+     */
     public Player getCurrentPlayer() {
         return players.get(currentPlayer);
     }
 
+    /**
+     * Moves to the next player's turn in a round-robin fashion.
+     */
     public void nextTurn() {
         currentPlayer = (currentPlayer + 1) % players.size();
     }
 
+    /**
+     * Displays the current board state and each player's hand and score.
+     */
     public void displayBoard() {
         System.out.println("Current board:");
         System.out.println(board.toString());
@@ -56,6 +80,12 @@ public class Game {
         }
     }
 
+    /**
+     * Handles user input for making a move.
+     * Players can place tiles, exchange tiles, pass their turn
+     *
+     * @param player The player currently making a move.
+     */
     public void makeMove(Player player) {
         Scanner scanner = new Scanner(System.in);
         String move = "";
@@ -64,12 +94,16 @@ public class Game {
         System.out.println("If you wish to exchange your letters, type 'exchange'.");
         System.out.println("If you wish to pass your turn, type 'pass'.");
         System.out.println("(When you are done making a move, type 'done'.");
+
+
+        // Keep reading input until player finishes, exchanges, or passes
         while (!move.equals("done") && !move.equals("exchange") && !move.equals("pass")) {
             System.out.print("Enter a command: ");
             move = scanner.nextLine().trim();
 
             switch (move) {
                 case "done" -> {
+                    // Ensure the player has placed at least one tile before finishing
                     if (placedTiles.isEmpty()) {
                         System.out.println("ERROR! You have to place at least one letter.");
                         move = "";
@@ -82,6 +116,7 @@ public class Game {
                     continue;
                 }
                 case "exchange" -> {
+                    // Return all tiles to the bag and draw new ones
                     while (!player.getHand().isEmpty()) {
                         tileBag.addTile(player.removeTile());
                     }
@@ -102,6 +137,7 @@ public class Game {
             char letter = Character.toUpperCase(parts[0].charAt(0));
             int row, col;
 
+            // Parse coordinates
             try {
                 row = Integer.parseInt(parts[1]);
                 col = Integer.parseInt(parts[2]);
@@ -110,6 +146,8 @@ public class Game {
                 continue;
             }
 
+
+            // Find the corresponding tile in the player's hand
             Tile selectedTile = null;
             for (Tile tile : player.getHand()) {
                 if (tile.getLetter() == letter) {
@@ -118,11 +156,13 @@ public class Game {
                 }
             }
 
+            // Error if tile not found
             if (selectedTile == null) {
                 System.out.println("ERROR! You don't have the letter '" + letter + "' in your hand.");
                 continue;
             }
 
+            // Error if tile not found
             if (board.placeTile(row, col, selectedTile)) {
                 selectedTile.setCoords(row, col);
                 placedTiles.add(selectedTile);
@@ -135,9 +175,18 @@ public class Game {
         }
     }
 
+    /**
+     * Validates the tiles placed during the turn to ensure the move follows Scrabble rules.
+     *
+     * @param firstTurn Whether this is the first move of the game.
+     * @return true if the move is valid, false otherwise.
+     */
     public boolean ValidateMove(boolean firstTurn) {
         boolean sameRow = true;
         boolean sameCol = true;
+
+
+        // Check if all tiles are in the same row or column
         for (int i = 1; i < placedTiles.size(); i++) {
             if (placedTiles.get(i).getX() != placedTiles.get(i-1).getX()) sameCol = false;
             if (placedTiles.get(i).getY() != placedTiles.get(i-1).getY()) sameRow = false;
@@ -152,6 +201,8 @@ public class Game {
         int end;
         int otherCoord;
 
+
+        // Determine word direction and boundaries
         if (sameRow) {
             placedTiles.sort(Comparator.comparingInt(Tile::getX));
             start = placedTiles.getFirst().getX();
@@ -165,16 +216,22 @@ public class Game {
             otherCoord = placedTiles.getFirst().getX();
         }
 
+
+        // Ensure placed tiles form a continuous word
         if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
             System.out.println("Error! The placed tiles must all be used to form one word.");
             return false;
         }
-        
+
+
+        // Ensure first word crosses the center tile
         if (firstTurn && board.getTile(Board.CENTER, Board.CENTER) == null) {
             System.out.println("ERROR! The first word must pass through the center.");
             return false;
         }
 
+
+        // Validate all formed words using the dictionary
         for (String word: board.getPlacedWords()) {
             if (!(dictionary.isValidWord(word))) return false; 
         }
@@ -182,6 +239,10 @@ public class Game {
         return true;
     }
 
+    /**
+     * Main entry point for running the game.
+     * Handles setup, player turns, and the main game loop.
+     */
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Game game = new Game();
@@ -193,6 +254,8 @@ public class Game {
 
         System.out.println("Welcome to SCRABBLE!");
         while (true) {
+
+            // Prompt user for number of players
             System.out.print("Please enter the number of players (2-4): ");
             numPlayers = Integer.parseInt(scanner.nextLine());
             if  (numPlayers < 2 || numPlayers > 4) {
@@ -202,6 +265,7 @@ public class Game {
             break;
         }
 
+        // Gather player names
         for (int i = 1; i <= numPlayers; i++) {
             System.out.print("Enter a name for Player " + i + ": ");
             String name = scanner.nextLine();
@@ -210,16 +274,19 @@ public class Game {
 
         game.startGame();
 
+        // Main game loop
         while (playable) {
             game.displayBoard();
             while (true) {
                 game.makeMove(game.getCurrentPlayer());
+                // Move to next player if they passed or exchanged
                 if (game.didExchangeOrPass){
                     game.didExchangeOrPass = false;
                     game.nextTurn();
                     break;
                 }
                 else if (game.ValidateMove(firstTurn)) {
+                    // Calculate and add score for placed tiles
                     int score = 0;
                     for (Tile tile : placedTiles) {
                         score += tile.getScore();
@@ -232,6 +299,7 @@ public class Game {
                     break;
                 }
                 else {
+                    // Invalid move: return tiles to player's hand
                     for (Tile tile : placedTiles) {
                         game.getCurrentPlayer().addTile(board.removeTile(tile.getX(), tile.getY()));
                     }
@@ -239,6 +307,7 @@ public class Game {
                 }
             }
 
+            // End the game if no tiles remain
             if (tilebag.isEmpty()) {
                 playable = false;
             }
