@@ -8,6 +8,7 @@ public class Game {
     private int currentPlayer;
     private static ArrayList<Tile> placedTiles;
     public boolean didExchangeOrPass;
+    private ArrayList<ScrabbleView> views;
 
     public Game() {
         board = new Board();
@@ -16,8 +17,13 @@ public class Game {
         dictionary.loadFromFile("wordlist.txt");
         players = new ArrayList<>();
         currentPlayer = 0;
-        placedTiles = new ArrayList<>();
+        placedTiles = new ArrayList<Tile>();
         didExchangeOrPass = false;
+        views = new ArrayList<ScrabbleView>();
+    }
+
+    public void addView(ScrabbleView view) {
+        views.add(view);
     }
 
     /**
@@ -243,7 +249,7 @@ public class Game {
      * Main entry point for running the game.
      * Handles setup, player turns, and the main game loop.
      */
-    public static void main(String[] args) {
+    public void play() {
         Scanner scanner = new Scanner(System.in);
         Game game = new Game();
         Board board = game.getBoard();
@@ -286,6 +292,11 @@ public class Game {
                     break;
                 }
                 else if (game.ValidateMove(firstTurn)) {
+                    //Update Views
+                    for (ScrabbleView view : views) {
+                        view.updateBoard(placedTiles);
+                    }
+                    
                     // Calculate and add score for placed tiles
                     int score = 0;
                     for (Tile tile : placedTiles) {
