@@ -106,6 +106,10 @@ public class Player {
         return null;
     }
 
+    public Tile removeTileByIndex(int i) {
+        return hand.remove(i);
+    }
+
     /**
      * Returns a string representation of the player, showing their score, name, and hand contents.
      *

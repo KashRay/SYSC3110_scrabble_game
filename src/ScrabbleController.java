@@ -1,0 +1,43 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class ScrabbleController implements ActionListener{
+    private App app;
+    private Game game;
+
+    public ScrabbleController(App app, Game game) {
+        super();
+        this.app = app;
+        this.game = game;
+    }
+
+    public void actionPerformed(ActionEvent event) {
+        String[] command = event.getActionCommand().split(" ");
+        switch (command[0]) {
+            case "H":
+                app.disableHand();
+                app.enableBoard();
+                app.hideTile(Integer.parseInt(command[1]));
+                game.selectTile(command[2].charAt(0));
+                break;
+            case "B":
+                game.placeTile(Integer.parseInt(command[2]), Integer.parseInt(command[3]));
+                app.enableHand();
+                app.disableBoard();
+                break;
+            case "D":
+                if (game.ValidateMove(Boolean.parseBoolean(command[1]))) {
+                    game.nextTurn(false);
+                }
+                else {
+                    game.removeViewsPlacedTiles();
+                }
+                break;
+            case "E":
+                game.nextTurn(true);
+                break;
+            default:
+                break;
+        }
+    }
+}
