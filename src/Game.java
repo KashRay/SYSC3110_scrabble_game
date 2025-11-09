@@ -12,6 +12,7 @@ public class Game {
     public boolean didExchangeOrPass;
     private ArrayList<ScrabbleView> views;
     private Tile selectedTile;
+    private int endPasses;
 
     public Game() {
         board = new Board();
@@ -24,6 +25,7 @@ public class Game {
         didExchangeOrPass = false;
         views = new ArrayList<ScrabbleView>();
         selectedTile = null;
+        endPasses = 0;
     }
 
     public void addView(ScrabbleView view) {
@@ -98,12 +100,23 @@ public class Game {
      */
     public void nextTurn(boolean exchange) {
         if (exchange) {
-            // Return all tiles to the bag and draw new ones
-            while (!this.getCurrentPlayer().getHand().isEmpty()) {
-                tileBag.addTile(this.getCurrentPlayer().removeTile());
+            if (tileBag.isEmpty()) {
+                endPasses += 1;
+                if (endPasses == players.size()) {
+                    //Call end game function
+                }
             }
-            tileBag.shuffle();
-            this.getCurrentPlayer().addTile(tileBag);
+            else {
+                // Return all tiles to the bag and draw new ones
+                while (!this.getCurrentPlayer().getHand().isEmpty()) {
+                    tileBag.addTile(this.getCurrentPlayer().removeTile());
+                }
+                tileBag.shuffle();
+                this.getCurrentPlayer().addTile(tileBag);
+            }
+        }
+        else {
+            endPasses = 0;
         }
         
         currentPlayer = (currentPlayer + 1) % players.size();
