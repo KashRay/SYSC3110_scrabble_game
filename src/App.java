@@ -155,9 +155,14 @@ public class App extends JFrame implements ScrabbleView {
         JButton currentButton;
         for (int i = 0; i < Player.HAND_SIZE; i++) {
             currentButton = tiles.get(i);
-            currentButton.setText("" + hand.get(i).getLetter());
-            currentButton.setActionCommand("H " + Integer.toString(i) + " " + currentButton.getText());
-            if (!currentButton.isVisible()) currentButton.setVisible(true);
+            if (i >= hand.size()) {
+                if (currentButton.isVisible()) currentButton.setVisible(false);
+            }
+            else {
+                currentButton.setText("" + hand.get(i).getLetter());
+                currentButton.setActionCommand("H " + Integer.toString(i) + " " + currentButton.getText());
+                if (!currentButton.isVisible()) currentButton.setVisible(true);
+            }
         }
     }
 
