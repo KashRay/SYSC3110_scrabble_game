@@ -43,12 +43,10 @@ public class Board {
      *
      * @param row the row index
      * @param col the column index
-     * @return the removed {@link Tile}, or {@code null} if the position was empty
      */
-    public Tile removeTile(int row, int col) {
+    public void removeTile(int row, int col) {
         Tile removedTile = board[row][col];
         board[row][col] = null;
-        return removedTile;
     }
 
     /**
