@@ -2,7 +2,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
 
 public class App extends JFrame implements ScrabbleView {
     Game game;
