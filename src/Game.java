@@ -143,6 +143,7 @@ public class Game {
         }
         
         currentPlayer = (currentPlayer + 1) % players.size();
+        this.updateViewsTopText(this.getCurrentPlayer().getName() + "'s turn.");
         this.updateViewsHand();
 
         for (Tile tile : this.getCurrentPlayer().getHand()) {
@@ -288,8 +289,17 @@ public class Game {
             score += tile.getScore();
         }
         this.getCurrentPlayer().addScore(score);
-        this.getCurrentPlayer().addTile(this.tileBag);
-        
+        this.updateViewsScore();
+
+        if (!tileBag.isEmpty()) {
+            this.getCurrentPlayer().addTile(this.tileBag);
+            if (tileBag.isEmpty()) {
+                this.updateViewsTopText("Tilebag is now empty!");
+                for (ScrabbleView view : views) {
+                    view.exchangeToPass();
+                }
+            }
+        }
         this.updateBoard(true);
         placedTiles.clear();
         if (firstTurn) firstTurn = false;

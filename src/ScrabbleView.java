@@ -8,5 +8,6 @@ public interface ScrabbleView {
     void disableFirstMove();
     void removePlacedTiles();
     void updateScore(String newScore);
+    void exchangeToPass();
     void endGame();
 }
