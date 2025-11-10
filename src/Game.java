@@ -72,7 +72,6 @@ public class Game {
         for (Player player : players) {
             player.addTile(tileBag);
         }
-        System.out.println("Game started with " + players.size() + " players!");
 
         this.updateViewsHand();
         this.updateViewsScore();
@@ -145,11 +144,6 @@ public class Game {
         currentPlayer = (currentPlayer + 1) % players.size();
         this.updateViewsTopText(this.getCurrentPlayer().getName() + "'s turn.");
         this.updateViewsHand();
-
-        for (Tile tile : this.getCurrentPlayer().getHand()) {
-            System.out.print("" + tile.getLetter());
-        }
-        System.out.println();
     }
 
     public void updateViewsTopText(String newText) {
@@ -196,7 +190,7 @@ public class Game {
         }
 
         for (ScrabbleView view : views) {
-            view.updateScore(scoreText);
+            view.updateScore(scoreText, tileBag.size());
         }
     }
 
@@ -302,7 +296,6 @@ public class Game {
         }
 
         if (!sameRow && !sameCol) {
-            //System.out.println("ERROR! All tiles must be placed on the same row or column");
             this.updateViewsTopText("ERROR! All tiles must be placed on the same row or column");
             return false;
         }
@@ -391,7 +384,6 @@ public class Game {
 
         this.getCurrentPlayer().addScore(totalScore);
         //this.updateViewsTopText(this.getCurrentPlayer().getName() + " has scored " + totalScore + " pts.");
-        this.updateViewsScore();
 
         if (!tileBag.isEmpty()) {
             this.getCurrentPlayer().addTile(this.tileBag);
@@ -402,6 +394,9 @@ public class Game {
                 }
             }
         }
+
+        this.updateViewsScore();
+
         this.updateBoard(true);
         placedTiles.clear();
         if (firstTurn) firstTurn = false;

@@ -7,7 +7,7 @@ public interface ScrabbleView {
     void updateHand(List<Tile> hand);
     void disableFirstMove();
     void removePlacedTiles();
-    void updateScore(String newScore);
+    void updateScore(String newScore, int numTiles);
     void exchangeToPass();
     void endGame();
 }

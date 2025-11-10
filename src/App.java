@@ -163,8 +163,8 @@ public class App extends JFrame implements ScrabbleView {
         }
     }
 
-    public void updateScore(String newScore) {
-        scoreField.setText(newScore);
+    public void updateScore(String newScore, int numTiles) {
+        scoreField.setText(newScore + "\nTiles Remaining: " + Integer.toString(numTiles));
     }
 
     public void exchangeToPass() {
