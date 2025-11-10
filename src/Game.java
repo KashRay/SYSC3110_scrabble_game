@@ -286,7 +286,7 @@ public class Game {
 
         if (placedTiles.size() > 1) {
             int start, end, otherCoord;
-            if (sameRow) {
+            if (!sameRow) {
                 placedTiles.sort(Comparator.comparingInt(Tile::getY)); //Sort by column
                 start = placedTiles.getFirst().getY();
                 end = placedTiles.getLast().getY();
@@ -297,6 +297,11 @@ public class Game {
                 end = placedTiles.getLast().getX();
                 otherCoord = placedTiles.getFirst().getY(); //Column is constant
             }
+
+            for (Tile tile : placedTiles) {
+                System.out.println(tile + Integer.toString(tile.getX()) + Integer.toString(tile.getY()));
+            }
+            System.out.println(Integer.toString(start) + " " + Integer.toString(end) + " " + Integer.toString(otherCoord));
 
             //Check for empty spaces between the start and end of the placed tiles
             if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
