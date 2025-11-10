@@ -198,7 +198,7 @@ public class Game {
         this.selectedTile = this.getCurrentPlayer().removeTileByLetter(c);
     }
 
-    public void placeTile(int x, int y) {
+    public boolean placeTile(int x, int y) {
         if (this.selectedTile == null) {
             this.updateViewsTopText("Select a tile first!");
         }
@@ -208,11 +208,13 @@ public class Game {
                 placedTiles.add(selectedTile);
                 this.updateBoard(false);
                 JOptionPane.showMessageDialog(null, this.getCurrentPlayer().getName() + " placed " + this.selectedTile.getLetter() + " at (" +  x + "," + y + ").");
+                return true;
             }
             else {
                 JOptionPane.showMessageDialog(null, "ERROR! Invalid move. Position is either already occupied, or out of bounds.");
             }
         }
+        return false;
     }
 
     /**

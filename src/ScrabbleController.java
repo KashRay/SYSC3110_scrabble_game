@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 public class ScrabbleController implements ActionListener{
     private App app;
     private Game game;
+    private int selectedTile;
 
     public ScrabbleController(App app, Game game) {
         super();
@@ -15,15 +16,17 @@ public class ScrabbleController implements ActionListener{
         String[] command = event.getActionCommand().split(" ");
         switch (command[0]) {
             case "H":
+                selectedTile = Integer.parseInt(command[1]);
                 app.disableHand();
                 app.enableBoard();
-                app.hideTile(Integer.parseInt(command[1]));
+                app.hideTile(selectedTile);
                 game.selectTile(command[2].charAt(0));
                 break;
             case "B":
-                game.placeTile(Integer.parseInt(command[2]), Integer.parseInt(command[3]));
-                app.enableHand();
-                app.disableBoard();
+                if (game.placeTile(Integer.parseInt(command[2]), Integer.parseInt(command[3]))) {
+                    app.enableHand();
+                    app.disableBoard();
+                }
                 break;
             case "D":
                 if (game.ValidateMove(Boolean.parseBoolean(command[1]))) {
