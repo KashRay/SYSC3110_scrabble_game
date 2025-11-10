@@ -118,6 +118,14 @@ public class App extends JFrame implements ScrabbleView {
         tiles.get(i).setVisible(false);
     }
 
+    public void enableExchange() {
+        exchange.setEnabled(true);
+    }
+
+    public void disableExchange() {
+        exchange.setEnabled(false);
+    }
+
     public void updateTopText(String text) {
         topText.setText(text);
     }
