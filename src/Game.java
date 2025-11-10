@@ -331,18 +331,18 @@ public class Game {
         }
 
         int totalScore = 0;
-        Set<Tile> allScoredTiles = new HashSet<>(); //Use a Set to avoid double-scoring tiles
+        ArrayList<Tile> allScoredTiles = new ArrayList<>();
         ArrayList<String> allNewWords = new ArrayList<>();
 
         //Find the main word (horizontal or vertical
-        ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameRow);
+        ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameCol);
         
         allNewWords.add(tilesToString(mainWordTiles));
         allScoredTiles.addAll(mainWordTiles);
 
         //Find all cross words by looping and checking other directions
         for (Tile placedTile : placedTiles) {
-            ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameRow); //Check other direction
+            ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameCol); //Check other direction
             if (crossWordTiles.size() > 1) {
                 allNewWords.add(tilesToString(crossWordTiles));
                 allScoredTiles.addAll(crossWordTiles);
