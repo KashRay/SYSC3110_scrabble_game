@@ -167,6 +167,11 @@ public class App extends JFrame implements ScrabbleView {
         scoreField.setText(newScore);
     }
 
+    public void endGame() {
+        this.disableBoard();
+        this.disableHand();
+    }
+
     public static void main(String[] args) {
         new App();
     }

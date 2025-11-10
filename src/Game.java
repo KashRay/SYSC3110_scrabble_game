@@ -78,6 +78,25 @@ public class Game {
         this.updateViewsScore();
     }
 
+    public void endGame() {
+        Player winner = null;
+        for (Player player : players) {
+            if (winner == null) {
+                winner = player;
+            }
+            else {
+                if (winner.getScore() < player.getScore()) {
+                    winner = player;
+                }
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, winner.getName() + " is the Winner!!!");
+        for (ScrabbleView view : views) {
+            view.endGame();
+        }
+    }
+
     /**
      * @return The current game board.
      */
@@ -107,7 +126,7 @@ public class Game {
             if (tileBag.isEmpty()) {
                 endPasses += 1;
                 if (endPasses == players.size()) {
-                    //Call end game function
+                    this.endGame();
                 }
             }
             else {
