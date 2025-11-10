@@ -46,18 +46,23 @@ public class Game {
      * Starts the game by distributing tiles to each player.
      */
     public void startGame() {
-        int numPlayers;
+        int numPlayers = 0;
 
         this.updateViewsTopText("Welcome to SCRABBLE!");
         while (true) {
 
-            // Prompt user for number of players
-            numPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of players (2-4):"));
-            if  (numPlayers < 2 || numPlayers > 4) {
-                JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 2 and 4.");
-                continue;
+            try {
+                // Prompt user for number of players
+                numPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of players (2-4):"));
+                if  (numPlayers < 2 || numPlayers > 4) {
+                    JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 2 and 4.");
+                    continue;
+                }
+                break;
             }
-            break;
+            catch (Exception e){
+                JOptionPane.showMessageDialog(null, "ERROR! Please enter an Integer.");
+            }
         }
 
         // Gather player names
