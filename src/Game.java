@@ -181,6 +181,7 @@ public class Game {
         Player player = this.getCurrentPlayer();
         for (Tile tile : placedTiles) {
             player.addTile(tile);
+            board.removeTile(tile.getX(), tile.getY());
         }
         placedTiles.clear();
         for (ScrabbleView view : views) {
@@ -221,12 +222,75 @@ public class Game {
     }
 
     /**
+     * New helper method that creates a list of all tiles used to create a word.
+     * @param startTile The tile to start searching from (one of the placed tiles).
+     * @param isHorizontal The direction to scan (true for horizontal, false for vertical)
+     * @return A list of all tiles forming the completed word in the direction.
+     */
+    public ArrayList<Tile> getWordTiles(Tile startTile, boolean isHorizontal) {
+        ArrayList<Tile> wordTiles = new ArrayList<>();
+        int row = startTile.getX();
+        int col = startTile.getY();
+
+        //Scan backwards (left or up) to find the start of the word
+        if (isHorizontal) {
+            while (col >= 0 && board.getTile(row, col) != null) {
+                col--;
+            }
+            col++; //Move back to the first letter
+        }
+        else {
+            while (row >= 0 && board.getTile(row, col) != null) {
+                row--;
+            }
+            row++; //Move back to the first letter
+        }
+
+        //Scan forwards (right or down) to get all tiles in the word
+        if (isHorizontal) {
+            while (col < Board.SIZE && board.getTile(row, col) != null) {
+                wordTiles.add(board.getTile(row, col));
+                col++;
+            }
+        }
+        else {
+            while (row < Board.SIZE && board.getTile(row, col) != null) {
+                wordTiles.add(board.getTile(row, col));
+                row++;
+            }
+        }
+
+        return wordTiles;
+    }
+
+    /**
+     * Helper method to convert tiles forming a word into a string.
+     * @param tiles The list of tiles forming a word.
+     * @return A string version of the word being created.
+     */
+    private String tilesToString(List<Tile> tiles) {
+        StringBuilder sb = new StringBuilder();
+        for (Tile tile : tiles) {
+            sb.append(tile.getLetter());
+        }
+
+        return sb.toString();
+    }
+
+    /**
      * Validates the tiles placed during the turn to ensure the move follows Scrabble rules.
+     * If valid, it calculates teh score, adds it to the player, and returns true.
+     * If invalid, it updates teh view with an error message and returns false.
      *
      * @param firstTurn Whether this is the first move of the game.
      * @return true if the move is valid, false otherwise.
      */
     public boolean ValidateMove(boolean firstTurn) {
+        if (placedTiles.isEmpty()) {
+            this.updateViewsTopText("ERROR! You have not placed any tiles.");
+            return false;
+        }
+
         boolean sameRow = true;
         boolean sameCol = true;
 
@@ -243,52 +307,90 @@ public class Game {
             return false;
         }
 
-        int start;
-        int end;
-        int otherCoord;
 
+        if (placedTiles.size() > 1) {
+            int start, end, otherCoord;
+            if (sameRow) {
+                placedTiles.sort(Comparator.comparingInt(Tile::getY)); //Sort by column
+                start = placedTiles.getFirst().getY();
+                end = placedTiles.getLast().getY();
+                otherCoord = placedTiles.getFirst().getX(); //Row is constant
+            } else {
+                placedTiles.sort(Comparator.comparingInt(Tile::getX)); //Sort by row
+                start = placedTiles.getFirst().getX();
+                end = placedTiles.getLast().getX();
+                otherCoord = placedTiles.getFirst().getY(); //Column is constant
+            }
 
-        // Determine word direction and boundaries
-        if (sameRow) {
-            placedTiles.sort(Comparator.comparingInt(Tile::getX));
-            start = placedTiles.getFirst().getX();
-            end = placedTiles.getLast().getX();
-            otherCoord = placedTiles.getFirst().getY();
+            //Check for empty spaces between the start and end of the placed tiles
+            if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
+                this.updateViewsTopText("Error! The placed tiles must all be used to form one word.");
+                return false;
+            }
         }
-        else {
-            placedTiles.sort(Comparator.comparingInt(Tile::getY));
-            start = placedTiles.getFirst().getY();
-            end = placedTiles.getLast().getY();
-            otherCoord = placedTiles.getFirst().getX();
-        }
-
-
-        // Ensure placed tiles form a continuous word
-        if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
-            //System.out.println("Error! The placed tiles must all be used to form one word.");
-            this.updateViewsTopText("Error! The placed tiles must all be used to form one word.");
-            return false;
-        }
-
 
         // Ensure first word crosses the center tile
         if (firstTurn && board.getTile(Board.CENTER, Board.CENTER) == null) {
-            //System.out.println("ERROR! The first word must pass through the center.");
             this.updateViewsTopText("ERROR! The first word must pass through the center.");
             return false;
         }
 
-        // Validate all formed words using the dictionary
-        for (String word: board.getPlacedWords()) {
-            if (!(dictionary.isValidWord(word))) return false; 
+        int totalScore = 0;
+        Set<Tile> allScoredTiles = new HashSet<>(); //Use a Set to avoid double-scoring tiles
+        ArrayList<String> allNewWords = new ArrayList<>();
+
+        //Find the main word (horizontal or vertical
+        ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameRow);
+        if (mainWordTiles.size() > 1) {
+            allNewWords.add(tilesToString(mainWordTiles));
+            allScoredTiles.addAll(mainWordTiles);
         }
 
-        // Calculate and add score for placed tiles
-        int score = 0;
-        for (Tile tile : placedTiles) {
-            score += tile.getScore();
+        //Find all cross words by looping and checking other directions
+        for (Tile placedTile : placedTiles) {
+            ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameRow); //Check other direction
+            if (crossWordTiles.size() > 1) {
+                allNewWords.add(tilesToString(crossWordTiles));
+                allScoredTiles.addAll(crossWordTiles);
+            }
         }
-        this.getCurrentPlayer().addScore(score);
+
+        if (!firstTurn) {
+            boolean connects = false;
+            for (Tile tile : allScoredTiles) {
+                if (!placedTiles.contains(tile)) {
+                    connects = true;
+                    break;
+                }
+            }
+            if (!connects) {
+                this.updateViewsTopText("ERROR! Move must connect to an existing tile.");
+                return false;
+            }
+        }
+
+        //If no new words were created (placed a tile without touching anything)
+        if (allNewWords.isEmpty()) {
+            this.updateViewsTopText("ERROR! Your move did not form any new words.");
+            return false;
+        }
+
+        //Dictionary validation
+        for (String word : allNewWords) {
+            if (!dictionary.isValidWord(word)) {
+                this.updateViewsTopText("ERROR! '" + word + "' is not a valid word.");
+                return false;
+            }
+        }
+
+        for (Tile tile : allScoredTiles) {
+            totalScore += tile.getScore();
+        }
+
+
+
+        this.getCurrentPlayer().addScore(totalScore);
+        //this.updateViewsTopText(this.getCurrentPlayer().getName() + " has scored " + totalScore + " pts.");
         this.updateViewsScore();
 
         if (!tileBag.isEmpty()) {
@@ -304,7 +406,7 @@ public class Game {
         placedTiles.clear();
         if (firstTurn) firstTurn = false;
         this.disableViewsFirstMove();
-        
+
         return true;
     }
 }
