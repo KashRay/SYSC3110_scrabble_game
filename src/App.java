@@ -3,6 +3,21 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 
+
+
+/**
+ * The App class represents the main graphical user interface (GUI)
+ * for the Scrabble game. It implements the ScrabbleView interface
+ * and serves as both the view and partial controller in an MVC structure.
+ *
+ * This class handles layout and user interactions through Swing components.
+ * It displays the game board, player hand, score, and control buttons such as
+ * "Done" and "Exchange". User actions are processed by a ScrabbleController
+ * instance which communicates with the Game model.
+ *
+ *
+ * @version 1.0
+ */
 public class App extends JFrame implements ScrabbleView {
     Game game;
     ScrabbleController controller;
@@ -13,13 +28,19 @@ public class App extends JFrame implements ScrabbleView {
     JButton done;
     JButton exchange;
 
+    /**
+     * Constructs the Scrabble application window, initializes all GUI elements,
+     * connects the model and controller, and starts a new game.
+     */
     public App() {
         super("Scrabble");
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         
+        // Initialize model and connect this view
         game = new Game();
         game.addView(this);
 
+        // Initialize controller and link it to this view and the model
         controller = new ScrabbleController(this, game);
 
         topText = new JTextArea("SCRABBLE!");
@@ -29,13 +50,18 @@ public class App extends JFrame implements ScrabbleView {
         JPanel middle = new JPanel();
         middle.setLayout(new FlowLayout());
 
+        // Create board grid
         JPanel board = new JPanel();
         board.setLayout(new GridLayout(Board.SIZE, Board.SIZE));
         squares = new JButton[Board.SIZE * Board.SIZE];
+
+        // Populate each board square with a button
         for (int i = 0; i < (Board.SIZE * Board.SIZE); i++) {
             button = new JButton();
             button.setText("_");
             if (i == 112) button.setBackground(Color.RED);
+
+            // Assign unique action command encoding board position and content
             button.setActionCommand("B " + button.getText() + " " + i / Board.SIZE + " " + i % Board.SIZE);
             button.addActionListener(controller);
             button.setPreferredSize(new Dimension(50, 50));
@@ -49,9 +75,12 @@ public class App extends JFrame implements ScrabbleView {
         middle.add(board);
         middle.add(scoreField);
 
+        // --- Bottom section: player hand + action buttons
         JPanel hand = new JPanel();
         hand.setLayout(new FlowLayout());
         tiles = new ArrayList<JButton>();
+
+        // Initialize player's hand (7 tiles)
         for (int i = 0; i < Player.HAND_SIZE; i++) {
             button = new JButton();
             button.addActionListener(controller);
@@ -87,6 +116,9 @@ public class App extends JFrame implements ScrabbleView {
         game.startGame();
     }
 
+    /** 
+    * Enables all playable board squares. 
+    */
     public void enableBoard() {
         for (JButton square : squares) {
             if (!square.getText().isEmpty()) {
@@ -95,53 +127,89 @@ public class App extends JFrame implements ScrabbleView {
         }
     }
 
+    /** 
+    * Disables all board squares. 
+    */
     public void disableBoard() {
         for (JButton square : squares) {
             square.setEnabled(false);
         }
     }
 
+    /** 
+    * Enables all player hand tiles. 
+    */
     public void enableHand() {
         for (JButton tile : tiles) {
             tile.setEnabled(true);
         }
     }
 
+    /** 
+    * Disables all player hand tiles. 
+    */
     public void disableHand() {
         for (JButton tile : tiles) {
             tile.setEnabled(false);
         }
     }
 
+    /** 
+    * Hides a specific tile from the player's hand (used when placed on board). 
+    */
     public void hideTile(int i) {
         tiles.get(i).setVisible(false);
     }
 
+    /**
+    * Enables the "Done" button.
+    */
     public void enableDone() {
         done.setEnabled(true);
     }
 
+    /** 
+    * Disables the "Done" button. 
+    */
     public void disableDone() {
         done.setEnabled(false);
     }
 
+    /** 
+    * Enables the "Exchange" button. 
+    */
     public void enableExchange() {
         exchange.setEnabled(true);
     }
 
+    /** 
+    * Disables the "Exchange" button. 
+    */
     public void disableExchange() {
         exchange.setEnabled(false);
     }
 
+    /**
+     * Updates the text area at the top of the window with a new message.
+     *
+     * @param text message or status to display
+     */
     public void updateTopText(String text) {
         topText.setText(text);
     }
 
+    /**
+     * Updates the game board to show tiles that have been placed.
+     *
+     * @param placedTiles list of tiles to display
+     * @param validated whether the move has been validated (true = permanent)
+     */
     public void updateBoard(ArrayList<Tile> placedTiles, boolean validated) {
         JButton currentSquare;
         for (Tile tile : placedTiles) {
             currentSquare = squares[Board.SIZE * tile.getX() + tile.getY()];
             currentSquare.setText("" + tile.getLetter());
+            // Green for confirmed moves, yellow for pending ones
             if (validated) {
                 currentSquare.setBackground(Color.GREEN);
             }
@@ -151,6 +219,12 @@ public class App extends JFrame implements ScrabbleView {
         }
     }
 
+    /**
+     * Updates the player's hand display to show their current tiles.
+     * Hidden tiles (already placed) are re-shown after the turn ends.
+     *
+     * @param hand list of tiles currently held by the player
+     */
     public void updateHand(List<Tile> hand) {
         JButton currentButton;
         for (int i = 0; i < Player.HAND_SIZE; i++) {
@@ -166,10 +240,17 @@ public class App extends JFrame implements ScrabbleView {
         }
     }
 
+    /** 
+    * Prevents the "Done" button from marking the first move as valid. 
+    */
     public void disableFirstMove() {
         done.setActionCommand("D false");
     }
 
+    /**
+     * Removes all tiles that were placed but not yet confirmed (yellow tiles).
+     * Also restores hidden tiles back to the player's hand.
+     */
     public void removePlacedTiles() {
         for (JButton button : squares) {
             if (button.getBackground() == Color.YELLOW) {
@@ -183,19 +264,36 @@ public class App extends JFrame implements ScrabbleView {
         }
     }
 
+    /**
+     * Updates the score display area with the player's score and remaining tiles.
+     *
+     * @param newScore the player's current score
+     * @param numTiles number of tiles left in the bag
+     */
     public void updateScore(String newScore, int numTiles) {
         scoreField.setText(newScore + "\nTiles Remaining: " + numTiles);
     }
 
+    /** 
+    * Changes the "Exchange" button label to "Pass" after an exchange action. 
+    */
     public void exchangeToPass() {
         exchange.setText("Pass");
     }
 
+    /** 
+    * Ends the game by disabling all user input. 
+    */
     public void endGame() {
         this.disableBoard();
         this.disableHand();
     }
 
+    /**
+     * Main entry point for launching the Scrabble application.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         new App();
     }

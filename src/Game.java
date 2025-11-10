@@ -2,6 +2,14 @@ import java.util.*;
 
 import javax.swing.JOptionPane;
 
+/**
+ * The Game class encapsulates the logic for a Scrabble game session.
+ * It manages players, the game board, the tile bag, word validation, scoring,
+ * and communication with the view layer.
+ *
+ * Implements a basic MVC (Model-View-Controller) pattern where Game
+ * serves as the Model, holding all core game state and logic.
+ */
 public class Game {
     private final Board board;
     private final TileBag tileBag;
@@ -13,6 +21,10 @@ public class Game {
     private Tile selectedTile;
     private int endPasses;
 
+    /**
+     * Constructs a new Game instance with a new board, tile bag,
+     * and dictionary. Initializes player and view lists and loads the word list.
+     */
     public Game() {
         board = new Board();
         tileBag = new TileBag();
@@ -26,6 +38,11 @@ public class Game {
         endPasses = 0;
     }
 
+    /**
+     * Registers a new view to be updated whenever the game state changes.
+     *
+     * @param view the ScrabbleView implementation to register
+     */
     public void addView(ScrabbleView view) {
         views.add(view);
     }
@@ -77,6 +94,10 @@ public class Game {
         this.updateViewsScore();
     }
 
+    /**
+     * Ends the game and determines the winner based on total score.
+     * Displays the winner and disables all game interactions in the views.
+     */
     public void endGame() {
         Player winner = players.getFirst();
         for (Player player : players) {
@@ -127,18 +148,27 @@ public class Game {
         this.updateViewsHand();
     }
 
+    /** 
+    * Updates all registered views with new text for the top message area. 
+    */
     public void updateViewsTopText(String newText) {
         for (ScrabbleView view : views) {
             view.updateTopText(newText);
         }
     }
 
+    /** 
+    * Updates the board display in all views. 
+    */
     public void updateBoard(boolean validated) {
         for (ScrabbleView view : views) {
             view.updateBoard(placedTiles, validated);
         }
     }
 
+    /** 
+    * Updates all views with the current player's hand. 
+    */
     public void updateViewsHand() {
         Player player = this.getCurrentPlayer();
         for (ScrabbleView view : views) {
@@ -146,12 +176,20 @@ public class Game {
         }
     }
 
+    /** 
+    * Disables the "first move" mode in all views after the first valid play. 
+    */
     public void disableViewsFirstMove() {
         for (ScrabbleView view : views) {
             view.disableFirstMove();
         }
     }
 
+
+    /**
+     * Removes any placed tiles from the board and returns them
+     * to the current player's hand, updating the views.
+     */
     public void removeViewsPlacedTiles() {
         Player player = this.getCurrentPlayer();
         for (Tile tile : placedTiles) {
@@ -164,6 +202,9 @@ public class Game {
         }
     }
 
+    /** 
+    * Updates the score display in all registered views. 
+    */
     public void updateViewsScore() {
         StringBuilder scoreText = new StringBuilder();
         for (Player player : players) {
@@ -175,10 +216,22 @@ public class Game {
         }
     }
 
+    /**
+     * Selects a tile from the player's hand to be placed on the board.
+     *
+     * @param c the letter of the tile to select
+     */
     public void selectTile(char c) {
         this.selectedTile = this.getCurrentPlayer().removeTileByLetter(c);
     }
 
+    /**
+     * Attempts to place the currently selected tile on the board.
+     *
+     * @param x the row index
+     * @param y the column index
+     * @return true if placement was successful; false otherwise
+     */
     public boolean placeTile(int x, int y) {
         if (this.selectedTile == null) {
             this.updateViewsTopText("Select a tile first!");
