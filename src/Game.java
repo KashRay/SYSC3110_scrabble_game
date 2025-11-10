@@ -75,6 +75,7 @@ public class Game {
         System.out.println("Game started with " + players.size() + " players!");
 
         this.updateViewsHand();
+        this.updateViewsScore();
     }
 
     /**
@@ -164,6 +165,17 @@ public class Game {
         placedTiles.clear();
         for (ScrabbleView view : views) {
             view.removePlacedTiles();
+        }
+    }
+
+    public void updateViewsScore() {
+        String scoreText = "";
+        for (Player player : players) {
+            scoreText += player.getName() + ": " + Integer.toString(player.getScore()) + "\n";
+        }
+
+        for (ScrabbleView view : views) {
+            view.updateScore(scoreText);
         }
     }
 

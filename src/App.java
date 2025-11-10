@@ -9,6 +9,7 @@ public class App extends JFrame implements ScrabbleView {
     ScrabbleController controller;
     JTextArea topText;
     JButton[] squares;
+    JTextArea scoreField;
     ArrayList<JButton> tiles;
     JButton done;
     JButton exchange;
@@ -26,6 +27,9 @@ public class App extends JFrame implements ScrabbleView {
         
         JButton button;
 
+        JPanel middle = new JPanel();
+        middle.setLayout(new FlowLayout());
+
         JPanel board = new JPanel();
         board.setLayout(new GridLayout(Board.SIZE, Board.SIZE));
         squares = new JButton[Board.SIZE * Board.SIZE];
@@ -40,6 +44,11 @@ public class App extends JFrame implements ScrabbleView {
             squares[i] = button;
             board.add(button);
         }
+
+        scoreField = new JTextArea();
+
+        middle.add(board);
+        middle.add(scoreField);
 
         JPanel hand = new JPanel();
         hand.setLayout(new FlowLayout());
@@ -69,11 +78,11 @@ public class App extends JFrame implements ScrabbleView {
         hand.add(endOptions);
 
         this.add(topText);
-        this.add(board);
+        this.add(middle);
         this.add(hand);
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setSize(1000, 500);
+        this.setSize(1000, 1000);
         this.setVisible(true);
 
         game.startGame();
@@ -152,6 +161,10 @@ public class App extends JFrame implements ScrabbleView {
         for (JButton button : tiles) {
             if (!button.isVisible()) button.setVisible(true);
         }
+    }
+
+    public void updateScore(String newScore) {
+        scoreField.setText(newScore);
     }
 
     public static void main(String[] args) {
