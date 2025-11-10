@@ -9,9 +9,9 @@ public class Game {
     private final List<Player> players;
     private int currentPlayer;
     private static ArrayList<Tile> placedTiles;
-    public boolean didExchangeOrPass;
     private ArrayList<ScrabbleView> views;
     private Tile selectedTile;
+    private int endPasses;
 
     public Game() {
         board = new Board();
@@ -21,9 +21,9 @@ public class Game {
         players = new ArrayList<>();
         currentPlayer = 0;
         placedTiles = new ArrayList<Tile>();
-        didExchangeOrPass = false;
         views = new ArrayList<ScrabbleView>();
         selectedTile = null;
+        endPasses = 0;
     }
 
     public void addView(ScrabbleView view) {
@@ -44,18 +44,23 @@ public class Game {
      * Starts the game by distributing tiles to each player.
      */
     public void startGame() {
-        int numPlayers;
+        int numPlayers = 0;
 
         this.updateViewsTopText("Welcome to SCRABBLE!");
         while (true) {
 
-            // Prompt user for number of players
-            numPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of players (2-4):"));
-            if  (numPlayers < 2 || numPlayers > 4) {
-                JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 2 and 4.");
-                continue;
+            try {
+                // Prompt user for number of players
+                numPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of players (2-4):"));
+                if  (numPlayers < 2 || numPlayers > 4) {
+                    JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 2 and 4.");
+                    continue;
+                }
+                break;
             }
-            break;
+            catch (Exception e){
+                JOptionPane.showMessageDialog(null, "ERROR! Please enter an Integer.");
+            }
         }
 
         // Gather player names
@@ -70,6 +75,26 @@ public class Game {
         System.out.println("Game started with " + players.size() + " players!");
 
         this.updateViewsHand();
+        this.updateViewsScore();
+    }
+
+    public void endGame() {
+        Player winner = null;
+        for (Player player : players) {
+            if (winner == null) {
+                winner = player;
+            }
+            else {
+                if (winner.getScore() < player.getScore()) {
+                    winner = player;
+                }
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, winner.getName() + " is the Winner!!!");
+        for (ScrabbleView view : views) {
+            view.endGame();
+        }
     }
 
     /**
@@ -98,15 +123,27 @@ public class Game {
      */
     public void nextTurn(boolean exchange) {
         if (exchange) {
-            // Return all tiles to the bag and draw new ones
-            while (!this.getCurrentPlayer().getHand().isEmpty()) {
-                tileBag.addTile(this.getCurrentPlayer().removeTile());
+            if (tileBag.isEmpty()) {
+                endPasses += 1;
+                if (endPasses == players.size()) {
+                    this.endGame();
+                }
             }
-            tileBag.shuffle();
-            this.getCurrentPlayer().addTile(tileBag);
+            else {
+                // Return all tiles to the bag and draw new ones
+                while (!this.getCurrentPlayer().getHand().isEmpty()) {
+                    tileBag.addTile(this.getCurrentPlayer().removeTile());
+                }
+                tileBag.shuffle();
+                this.getCurrentPlayer().addTile(tileBag);
+            }
+        }
+        else {
+            endPasses = 0;
         }
         
         currentPlayer = (currentPlayer + 1) % players.size();
+        this.updateViewsTopText(this.getCurrentPlayer().getName() + "'s turn.");
         this.updateViewsHand();
 
         for (Tile tile : this.getCurrentPlayer().getHand()) {
@@ -148,6 +185,17 @@ public class Game {
         placedTiles.clear();
         for (ScrabbleView view : views) {
             view.removePlacedTiles();
+        }
+    }
+
+    public void updateViewsScore() {
+        String scoreText = "";
+        for (Player player : players) {
+            scoreText += player.getName() + ": " + Integer.toString(player.getScore()) + "\n";
+        }
+
+        for (ScrabbleView view : views) {
+            view.updateScore(scoreText);
         }
     }
 
@@ -241,8 +289,17 @@ public class Game {
             score += tile.getScore();
         }
         this.getCurrentPlayer().addScore(score);
-        this.getCurrentPlayer().addTile(this.tileBag);
-        
+        this.updateViewsScore();
+
+        if (!tileBag.isEmpty()) {
+            this.getCurrentPlayer().addTile(this.tileBag);
+            if (tileBag.isEmpty()) {
+                this.updateViewsTopText("Tilebag is now empty!");
+                for (ScrabbleView view : views) {
+                    view.exchangeToPass();
+                }
+            }
+        }
         this.updateBoard(true);
         placedTiles.clear();
         if (firstTurn) firstTurn = false;
