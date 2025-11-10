@@ -304,7 +304,7 @@ public class Game {
             System.out.println(Integer.toString(start) + " " + Integer.toString(end) + " " + Integer.toString(otherCoord));
 
             //Check for empty spaces between the start and end of the placed tiles
-            if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
+            if (!board.haveEmptySpace(start, end, otherCoord, !sameRow)) {
                 this.updateViewsTopText("Error! The placed tiles must all be used to form one word.");
                 return false;
             }
