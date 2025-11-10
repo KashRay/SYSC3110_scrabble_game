@@ -9,7 +9,7 @@ public class Game {
     private final List<Player> players;
     private int currentPlayer;
     private static ArrayList<Tile> placedTiles;
-    private ArrayList<ScrabbleView> views;
+    private final ArrayList<ScrabbleView> views;
     private Tile selectedTile;
     private int endPasses;
 
@@ -44,7 +44,7 @@ public class Game {
      * Starts the game by distributing tiles to each player.
      */
     public void startGame() {
-        int numPlayers = 0;
+        int numPlayers;
 
         this.updateViewsTopText("Welcome to SCRABBLE!");
         while (true) {
@@ -78,15 +78,10 @@ public class Game {
     }
 
     public void endGame() {
-        Player winner = null;
+        Player winner = players.getFirst();
         for (Player player : players) {
-            if (winner == null) {
+            if (winner.getScore() < player.getScore()) {
                 winner = player;
-            }
-            else {
-                if (winner.getScore() < player.getScore()) {
-                    winner = player;
-                }
             }
         }
 
@@ -94,20 +89,6 @@ public class Game {
         for (ScrabbleView view : views) {
             view.endGame();
         }
-    }
-
-    /**
-     * @return The current game board.
-     */
-    public Board getBoard() {
-        return this.board;
-    }
-
-    /**
-     * @return The tile bag shared among players.
-     */
-    public TileBag getTileBag() {
-        return this.tileBag;
     }
 
     /**
@@ -184,13 +165,13 @@ public class Game {
     }
 
     public void updateViewsScore() {
-        String scoreText = "";
+        StringBuilder scoreText = new StringBuilder();
         for (Player player : players) {
-            scoreText += player.getName() + ": " + Integer.toString(player.getScore()) + "\n";
+            scoreText.append(player.getName()).append(": ").append(player.getScore()).append("\n");
         }
 
         for (ScrabbleView view : views) {
-            view.updateScore(scoreText, tileBag.size());
+            view.updateScore(scoreText.toString(), tileBag.size());
         }
     }
 
@@ -305,7 +286,7 @@ public class Game {
 
         if (placedTiles.size() > 1) {
             int start, end, otherCoord;
-            if (sameRow) {
+            if (!sameRow) {
                 placedTiles.sort(Comparator.comparingInt(Tile::getY)); //Sort by column
                 start = placedTiles.getFirst().getY();
                 end = placedTiles.getLast().getY();
@@ -317,8 +298,13 @@ public class Game {
                 otherCoord = placedTiles.getFirst().getY(); //Column is constant
             }
 
+            for (Tile tile : placedTiles) {
+                System.out.println(tile + Integer.toString(tile.getX()) + Integer.toString(tile.getY()));
+            }
+            System.out.println(Integer.toString(start) + " " + Integer.toString(end) + " " + Integer.toString(otherCoord));
+
             //Check for empty spaces between the start and end of the placed tiles
-            if (!board.haveEmptySpace(start, end, otherCoord, sameRow)) {
+            if (!board.haveEmptySpace(start, end, otherCoord, !sameRow)) {
                 this.updateViewsTopText("Error! The placed tiles must all be used to form one word.");
                 return false;
             }
@@ -331,19 +317,17 @@ public class Game {
         }
 
         int totalScore = 0;
-        Set<Tile> allScoredTiles = new HashSet<>(); //Use a Set to avoid double-scoring tiles
         ArrayList<String> allNewWords = new ArrayList<>();
 
         //Find the main word (horizontal or vertical
-        ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameRow);
-        if (mainWordTiles.size() > 1) {
-            allNewWords.add(tilesToString(mainWordTiles));
-            allScoredTiles.addAll(mainWordTiles);
-        }
+        ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameCol);
+        
+        allNewWords.add(tilesToString(mainWordTiles));
+        ArrayList<Tile> allScoredTiles = new ArrayList<>(mainWordTiles);
 
         //Find all cross words by looping and checking other directions
         for (Tile placedTile : placedTiles) {
-            ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameRow); //Check other direction
+            ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameCol); //Check other direction
             if (crossWordTiles.size() > 1) {
                 allNewWords.add(tilesToString(crossWordTiles));
                 allScoredTiles.addAll(crossWordTiles);
