@@ -36,7 +36,7 @@ public class App extends JFrame implements ScrabbleView {
             button = new JButton();
             button.setText("_");
             if (i == 112) button.setBackground(Color.RED);
-            button.setActionCommand("B " + button.getText() + " " + Integer.toString(i / Board.SIZE) + " " + Integer.toString(i % Board.SIZE));
+            button.setActionCommand("B " + button.getText() + " " + i / Board.SIZE + " " + i % Board.SIZE);
             button.addActionListener(controller);
             button.setPreferredSize(new Dimension(50, 50));
             button.setEnabled(false);
@@ -89,7 +89,7 @@ public class App extends JFrame implements ScrabbleView {
 
     public void enableBoard() {
         for (JButton square : squares) {
-            if (!square.getText().equals("")) {
+            if (!square.getText().isEmpty()) {
                 square.setEnabled(true);
             }
         }
@@ -160,7 +160,7 @@ public class App extends JFrame implements ScrabbleView {
             }
             else {
                 currentButton.setText("" + hand.get(i).getLetter());
-                currentButton.setActionCommand("H " + Integer.toString(i) + " " + currentButton.getText());
+                currentButton.setActionCommand("H " + i + " " + currentButton.getText());
                 if (!currentButton.isVisible()) currentButton.setVisible(true);
             }
         }
@@ -174,7 +174,7 @@ public class App extends JFrame implements ScrabbleView {
         for (JButton button : squares) {
             if (button.getBackground() == Color.YELLOW) {
                 button.setText("_");
-                button.setBackground(Color.WHITE);
+                button.setBackground(null);
             }
         }
 
@@ -184,7 +184,7 @@ public class App extends JFrame implements ScrabbleView {
     }
 
     public void updateScore(String newScore, int numTiles) {
-        scoreField.setText(newScore + "\nTiles Remaining: " + Integer.toString(numTiles));
+        scoreField.setText(newScore + "\nTiles Remaining: " + numTiles);
     }
 
     public void exchangeToPass() {
