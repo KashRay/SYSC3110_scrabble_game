@@ -20,6 +20,7 @@ public class ScrabbleController implements ActionListener{
                 app.disableHand();
                 app.enableBoard();
                 app.hideTile(selectedTile);
+                app.disableDone();
                 app.disableExchange();
                 game.selectTile(command[2].charAt(0));
                 break;
@@ -27,6 +28,7 @@ public class ScrabbleController implements ActionListener{
                 if (game.placeTile(Integer.parseInt(command[2]), Integer.parseInt(command[3]))) {
                     app.enableHand();
                     app.disableBoard();
+                    app.enableDone();
                 }
                 break;
             case "D":
