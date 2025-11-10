@@ -9,7 +9,6 @@ public class Game {
     private final List<Player> players;
     private int currentPlayer;
     private static ArrayList<Tile> placedTiles;
-    public boolean didExchangeOrPass;
     private ArrayList<ScrabbleView> views;
     private Tile selectedTile;
     private int endPasses;
@@ -22,7 +21,6 @@ public class Game {
         players = new ArrayList<>();
         currentPlayer = 0;
         placedTiles = new ArrayList<Tile>();
-        didExchangeOrPass = false;
         views = new ArrayList<ScrabbleView>();
         selectedTile = null;
         endPasses = 0;
