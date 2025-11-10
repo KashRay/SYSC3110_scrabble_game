@@ -336,10 +336,9 @@ public class Game {
 
         //Find the main word (horizontal or vertical
         ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameRow);
-        if (mainWordTiles.size() > 1) {
-            allNewWords.add(tilesToString(mainWordTiles));
-            allScoredTiles.addAll(mainWordTiles);
-        }
+        
+        allNewWords.add(tilesToString(mainWordTiles));
+        allScoredTiles.addAll(mainWordTiles);
 
         //Find all cross words by looping and checking other directions
         for (Tile placedTile : placedTiles) {
