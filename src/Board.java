@@ -43,12 +43,10 @@ public class Board {
      *
      * @param row the row index
      * @param col the column index
-     * @return the removed {@link Tile}, or {@code null} if the position was empty
      */
-    public Tile removeTile(int row, int col) {
+    public void removeTile(int row, int col) {
         Tile removedTile = board[row][col];
         board[row][col] = null;
-        return removedTile;
     }
 
     /**
@@ -75,14 +73,14 @@ public class Board {
      * @return {@code true} if there are no empty spaces between start and end, otherwise {@code false}
      */
     public boolean haveEmptySpace(int start, int end, int otherCoord, boolean direction) {
-        for (int i = start; i != end + 1; i++) {
+        for (int i = start; i <= end; i++) {
             if (!direction) {
                 // Vertical check
-                if (getTile(otherCoord, i) == null) return false;
+                if (getTile(i, otherCoord) == null) return false;
             }
             else {
                 // Horizontal check
-                if (getTile(i, otherCoord) == null) return false;
+                if (getTile(otherCoord, i) == null) return false;
             }
         }
         return true;

@@ -1,44 +1,53 @@
 # SYSC 3110 Group 15 Scrabble Project
 
 ## Deliverable Breakdown
-The current version, Milestone 1, is a text-based version of the popular game Scrabble. It is an MVP of the final deliverable and contains the core functionality such as, but not limited to:
+The current version, **Milestone 2**, extends the text-based MVP from Milestone 1 by implementing a fully functional **graphical user interface (GUI)** and refactoring the project to follow the **Model-View-Controller (MVC)** architecture.
 
-- `Game.java`: This controls the main game loop, player turns, and keyboard input detection.
-- `Board.java`: This creates the 15x15 game board, verifies placements, and displays the state of the tiles.
-- `Player.java`: This represents the player and handles their tiles and score.
-- `Tile.java`: This represents a single Scrabble tile with its letter and value.
-- `TileBag.java`: This is responsible for drawing and replenishing tiles.
-- `Dictionary.java`: This verifies and determines whether a word is acceptable by using a provided list of words.
+This milestone includes:
+- **Graphical Interface (View):**  
+  Implemented using `JFrame` and `Swing` components (`App.java`). Players interact with the game entirely through mouse input.
+- **Controller:**  
+  Implemented in `ScrabbleController.java`, handling all user actions and communication between the model and the view through Java’s event model.
+- **Model:**  
+  Core logic from Milestone 1 (`Game.java`, `Board.java`, `Player.java`, `Tile.java`, `TileBag.java`, `Dictionary.java`) refactored to integrate with the MVC structure.
+- **Dictionary:**  
+  Updated to load words from a file and perform real-time validation of placed words.
+- **UML and Sequence Diagrams:**  
+  Updated to include all classes, full method and variable signatures, and interactions between the Model, View, and Controller.
+- **JUnit Testing:**  
+  Model classes now include comprehensive JUnit tests for word placement, scoring logic, and dictionary validation.
 
-The rest of the deliverables include:
-- A UML and sequence diagram
-- A compilable `.jar` file
-- The Java source code
+Deliverables included in this submission:
+- Updated UML and sequence diagrams
+- Compilable `.jar` file
+- Java source code (Model, View, Controller)
+- JUnit test suite for model components
+- `README.md` documentation
 
 ## Running Instructions
 
-To run the program, open your terminal and enter:
-```java -jar Scrabble.jar```
-
-Or, if using IntelliJ, simply navigate to `Game.java` and press the Play button.
-
+To run the program, open a terminal and enter:
+```bash
+java -jar Scrabble.jar
+```
 ## Authors
+- Abdullah Khan    101305235
+- Adrian Joaquin   101226876
+- Ismael Ouadria   101284947
+- Rayyan Kashif    101274266
 
-- Abdullah Khan 101305235
-- Adrian Joaquin 101226876
-- Ismael Ouadria 101284947
-- Rayyan Kashif 101274266
-
-## Changes since previous deliverable
-
-*N/A, first milestone submission. Will populate starting from Milestone 2.*
+## Changes Since Previous Deliverable
+- Added `App.java` to implement a graphical interface using Swing.
+- Introduced `ScrabbleController.java` to handle event-driven user interaction.
+- Refactored `Game.java` and related model classes to support MVC separation.
+- Added event-based communication between the View and Model.
+- Implemented JUnit tests for all model logic.
+- Updated UML class and sequence diagrams to reflect MVC structure and new relationships.
 
 ## Known Issues
-
-*N/A*
+- Minor layout scaling differences may occur on high-DPI displays.
+- No premium tile or blank tile functionality yet (planned for Milestone 3).
 
 ## Next Steps
-
-- **Milestone 2**: In this milestone, we will implement a GUI for our Milestone 1 deliverable in a JFrame with the input via the user's mouse. 
-- **Milestone 3**: In this milestone, we will implement premium features into the Milestone 2 GUI such as blank tiles, premium squares, and multiple AI players.
-- **Milestone 4**: In this milestone, we will add 3 additional features to our Milestone 3 deliverable: a multi-level undo/redo feature, a save/load feature, and custom boards with alternate placements of premium squares.
+- **Milestone 3:** Add premium tiles, blank tiles, and AI player functionality.
+- **Milestone 4:** Implement multi-level undo/redo, save/load, and custom board configuration.
