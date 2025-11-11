@@ -29,7 +29,7 @@ public class Game {
         board = new Board();
         tileBag = new TileBag();
         dictionary = new Dictionary();
-        dictionary.loadFromFile("wordlist.txt");
+        dictionary.loadFromFile("src/wordlist.txt");
         players = new ArrayList<>();
         currentPlayer = 0;
         placedTiles = new ArrayList<Tile>();
