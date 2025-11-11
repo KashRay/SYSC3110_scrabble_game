@@ -34,6 +34,8 @@ public class App extends JFrame implements ScrabbleView {
      */
     public App() {
         super("Scrabble");
+
+        // Use a vertical layout for the main window: text, board, and hand stacked top to bottom
         this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
         
         // Initialize model and connect this view
@@ -109,6 +111,7 @@ public class App extends JFrame implements ScrabbleView {
         this.add(middle);
         this.add(hand);
 
+        // Configure the JFrame window
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setSize(1000, 1000);
         this.setVisible(true);
