@@ -64,7 +64,6 @@ public class Board {
      * @param col the column index
      */
     public void removeTile(int row, int col) {
-        Tile removedTile = board[row][col];
         board[row][col] = null;
     }
 
