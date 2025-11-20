@@ -4,15 +4,14 @@ import java.awt.event.ActionListener;
 /**
  * The ScrabbleController class handles user interactions
  * between the Scrabble GUI (the App) and the game logic (the Game).
- * 
+ *
  * It interprets button clicks (tiles, board squares, and action buttons)
  * and updates the model and view accordingly using the MVC pattern.
  * 
  */
 public class ScrabbleController implements ActionListener{
-    private App app;
-    private Game game;
-    private int selectedTile;
+    private final App app;
+    private final Game game;
 
     /**
      * Constructs a new ScrabbleController that manages communication
@@ -27,7 +26,7 @@ public class ScrabbleController implements ActionListener{
         this.game = game;
     }
 
-    /**
+    /*
      * Handles all button actions triggered in the GUI.
      * 
      * This method parses the ActionCommand of the pressed button
@@ -43,7 +42,7 @@ public class ScrabbleController implements ActionListener{
         String[] command = event.getActionCommand().split(" ");
         switch (command[0]) {
 
-            /** 
+            /*
              * Case "H": A tile from the player's hand was selected.
              * - Disable the rest of the hand (only one tile can be active)
              * - Enable the board so the player can place it
@@ -52,16 +51,21 @@ public class ScrabbleController implements ActionListener{
              */
 
             case "H":
-                selectedTile = Integer.parseInt(command[1]);
+                int selectedTile = Integer.parseInt(command[1]);
                 app.disableHand();
                 app.enableBoard();
                 app.hideTile(selectedTile);
                 app.disableDone();
                 app.disableExchange();
-                game.selectTile(command[2].charAt(0));
+
+                char letter = ' ';
+                if (command.length > 2) {
+                    letter = command[2].charAt(0);
+                }
+                game.selectTile(letter);
                 break;
 
-            /**
+            /*
              * Case "B": A board square was clicked.
              * - Attempt to place the selected tile on the board.
              * - If successful, re-enable the player's hand for further actions.
@@ -74,7 +78,7 @@ public class ScrabbleController implements ActionListener{
                 }
                 break;
 
-            /**
+            /*
              * Case "D": The player clicked the "Done" button.
              * - Validate the current move.
              * - If valid, proceed to the next turn.
@@ -90,7 +94,7 @@ public class ScrabbleController implements ActionListener{
                 app.enableExchange();
                 break; 
                 
-            /**
+            /*
              * Case "E": The player chose to exchange tiles or pass.
              * - Immediately proceeds to the next turn with an exchange/pass action.
              */

@@ -86,7 +86,7 @@ public class Player {
      * @return the first tile in the hand
      */
     public Tile removeTile() {
-        return hand.remove(0);
+        return hand.removeFirst();
     }
 
     /**

@@ -1,10 +1,8 @@
-import java.util.ArrayList;
-
 public class Board {
     public static final int SIZE = 15;
     public static final int CENTER = Board.SIZE / 2;
     
-    public enum tileType {Normal, DL, TL, DW, TW};
+    public enum tileType {Normal, DL, TL, DW, TW}
     public static final tileType[][] premiumTiles = {
         {tileType.TW, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.TW}, 
         {tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal}, 
@@ -104,53 +102,10 @@ public class Board {
         return true;
     }
 
-
-    /**
-     * Retrieves all words currently placed on the board.
-     * <p>
-     * Words are detected by scanning each row and column and concatenating
-     * sequences of adjacent tiles.
-     *
-     * @return an {@link ArrayList} containing all placed words
-     */
-    public ArrayList<String> getPlacedWords() {
-        ArrayList<String> words = new ArrayList<>();
-        StringBuilder currentWord = new StringBuilder();
-
-        // Horizontal word scan
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if ((!currentWord.isEmpty()) && board[i][j] == null) {
-                    words.add(currentWord.toString());
-                    currentWord = new StringBuilder();
-                }
-                else if (board[i][j] != null) {
-                    currentWord.append(board[i][j].getLetter());
-                }
-            }
-        }
-
-        // Vertical word scan
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (!currentWord.toString().isEmpty() && board[j][i] == null) {
-                    words.add(currentWord.toString());
-                    currentWord = new StringBuilder();
-                }
-                else if (board[j][i] != null) {
-                    currentWord.append(board[j][i].getLetter());
-                }
-            }
-        }
-
-        return words;
-    }
-
-
     /**
      * Returns a visual representation of the current board state.
      * <p>
-     * Each tile is displayed using its letter, and empty cells are marked with "--".
+     * Each tile is displayed using its letter, and empty cells are marked with '--'.
      *
      * @return a formatted string representing the board grid
      */

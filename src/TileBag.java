@@ -2,11 +2,11 @@ import java.util.*;
 
 /**
  * The TileBag class represents the bag of tiles used in a Scrabble game.
- * 
+ *
  * It stores all available tiles, handles random shuffling, and allows tiles
  * to be drawn one at a time. The class also supports re-adding tiles, which
  * can be used for returning exchanged tiles to the bag.
- * 
+ *
  *
  * This class encapsulates tile management logic so that the Game
  * class can easily access and manipulate tiles without manually tracking their distribution.
@@ -18,9 +18,9 @@ public class TileBag {
     /**
      * Constructs a new TileBag and initializes it with
      * the standard Scrabble tile distribution.
-     * 
+     *
      * Once initialized, the bag is automatically shuffled to randomize tile order.
-     * 
+     *
      */
     public TileBag() {
         tiles = new ArrayList<>();
@@ -32,10 +32,10 @@ public class TileBag {
 
     /**
      * Adds a specific number of tiles with the given letter and value to the bag.
-     * 
+     *
      * This method is mainly used internally during initialization to populate
      * the bag with the correct distribution of Scrabble tiles.
-     * 
+     *
      *
      * @param letter the letter assigned to the tile (A–Z)
      * @param value  the point value of the letter
@@ -49,10 +49,10 @@ public class TileBag {
 
     /**
      * Adds an individual tile back into the bag.
-     * 
+     *
      * This can be used to return exchanged tiles or unplayed tiles
      * to the bag during gameplay.
-     * 
+     *
      *
      * @param tile the Tile object to be added
      */
@@ -95,7 +95,7 @@ public class TileBag {
         addTile('X', 8, 1);
         addTile('Y', 4, 2);
         addTile('Z', 10, 1);
-        //Blank tiles currently not implemented
+        addTile(' ', 0, 2); //Blank tiles
     }
 
     /**

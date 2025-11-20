@@ -1,5 +1,5 @@
 public class Tile {
-    private final char letter;
+    private char letter;
     private final int score;
     private int x;
     private int y;
@@ -25,6 +25,15 @@ public class Tile {
     public void setCoords(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    /**
+     * Sets the letter of the tile. Used for blank tiles.
+     *
+     * @param letter the letter to be set
+     */
+    public void setLetter(char letter) {
+        this.letter = Character.toUpperCase(letter);
     }
 
     /**

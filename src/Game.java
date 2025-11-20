@@ -193,6 +193,7 @@ public class Game {
     public void removeViewsPlacedTiles() {
         Player player = this.getCurrentPlayer();
         for (Tile tile : placedTiles) {
+            if (tile.getScore() == 0) tile.setLetter(' ');
             player.addTile(tile);
             board.removeTile(tile.getX(), tile.getY());
         }
@@ -237,6 +238,17 @@ public class Game {
             this.updateViewsTopText("Select a tile first!");
         }
         else {
+            if (this.selectedTile.getScore() == 0) {
+                String input = JOptionPane.showInputDialog("Enter a letter for the blank tile: ");
+
+                if (input != null && !input.trim().isEmpty() && Character.isLetter(input.trim().charAt(0))) {
+                    this.selectedTile.setLetter(input.trim().charAt(0));
+                }
+                else {
+                    JOptionPane.showMessageDialog(null, "ERROR! Please enter a letter for the blank tile!");
+                    return false;
+                }
+            }
             if (board.placeTile(x, y, selectedTile)) {
                 this.selectedTile.setCoords(x, y);
                 placedTiles.add(selectedTile);
@@ -245,6 +257,9 @@ public class Game {
                 return true;
             }
             else {
+                if (this.selectedTile.getScore() == 0) {
+                    this.selectedTile.setLetter(' ');
+                }
                 JOptionPane.showMessageDialog(null, "ERROR! Invalid move. Position is either already occupied, or out of bounds.");
             }
         }
@@ -433,7 +448,6 @@ public class Game {
 
         this.updateBoard(true);
         placedTiles.clear();
-        if (firstTurn) firstTurn = false;
         this.disableViewsFirstMove();
 
         return true;
