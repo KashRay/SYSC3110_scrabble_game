@@ -3,6 +3,25 @@ import java.util.ArrayList;
 public class Board {
     public static final int SIZE = 15;
     public static final int CENTER = Board.SIZE / 2;
+    
+    public enum tileType {Normal, DL, TL, DW, TW};
+    public static final tileType[][] premiumTiles = {
+        {tileType.TW, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.TW}, 
+        {tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal}, 
+        {tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal}, 
+        {tileType.DL, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.DL}, 
+        {tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal}, 
+        {tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal}, 
+        {tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal}, 
+        {tileType.TW, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.TW}, 
+        {tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal}, 
+        {tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal}, 
+        {tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.Normal}, 
+        {tileType.DL, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.DL}, 
+        {tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal}, 
+        {tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal}, 
+        {tileType.TW, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.TW}};
+    
     private final Tile[][] board;
 
     public Board() {

@@ -61,10 +61,26 @@ public class App extends JFrame implements ScrabbleView {
         for (int i = 0; i < (Board.SIZE * Board.SIZE); i++) {
             button = new JButton();
             button.setText("_");
-            if (i == 112) button.setBackground(Color.RED);
-
+            int x = i / Board.SIZE;
+            int y = i % Board.SIZE;
+            switch (Board.premiumTiles[x][y]) {
+                case DL:
+                    button.setBackground(Color.CYAN);
+                    break;
+                case TL:
+                    button.setBackground(Color.BLUE);
+                    break;
+                case DW:
+                    button.setBackground(Color.YELLOW);
+                    break;
+                case TW:
+                    button.setBackground(Color.RED);
+                    break;
+                default:
+                    break;
+            }
             // Assign unique action command encoding board position and content
-            button.setActionCommand("B " + button.getText() + " " + i / Board.SIZE + " " + i % Board.SIZE);
+            button.setActionCommand("B " + button.getText() + " " + x + " " + y);
             button.addActionListener(controller);
             button.setPreferredSize(new Dimension(50, 50));
             button.setEnabled(false);
@@ -217,7 +233,7 @@ public class App extends JFrame implements ScrabbleView {
                 currentSquare.setBackground(Color.GREEN);
             }
             else {
-                currentSquare.setBackground(Color.YELLOW);
+                currentSquare.setBackground(Color.MAGENTA);
             }
         }
     }
@@ -255,10 +271,29 @@ public class App extends JFrame implements ScrabbleView {
      * Also restores hidden tiles back to the player's hand.
      */
     public void removePlacedTiles() {
-        for (JButton button : squares) {
-            if (button.getBackground() == Color.YELLOW) {
+        for (int i = 0; i < (Board.SIZE * Board.SIZE); i++) {
+            JButton button = squares[i];
+            if (button.getBackground() == Color.MAGENTA) {
                 button.setText("_");
-                button.setBackground(null);
+                int x = i / Board.SIZE;
+                int y = i % Board.SIZE;
+                switch (Board.premiumTiles[x][y]) {
+                    case DL:
+                        button.setBackground(Color.CYAN);
+                        break;
+                    case TL:
+                        button.setBackground(Color.BLUE);
+                        break;
+                    case DW:
+                        button.setBackground(Color.YELLOW);
+                        break;
+                    case TW:
+                        button.setBackground(Color.RED);
+                        break;
+                    default:
+                        button.setBackground(null);
+                        break;
+                }
             }
         }
 
