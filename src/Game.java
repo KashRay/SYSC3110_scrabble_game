@@ -416,13 +416,16 @@ public class Game {
 
         //Find the main word (horizontal or vertical
         ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameCol);
+        System.out.println("Main Word:\n" + tilesToString(mainWordTiles));
         
         allNewWords.add(tilesToString(mainWordTiles));
         ArrayList<Tile> allScoredTiles = new ArrayList<>(mainWordTiles);
 
         //Find all cross words by looping and checking other directions
+        System.out.println("Crossword Tiles:");
         for (Tile placedTile : placedTiles) {
             ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameCol); //Check other direction
+            System.out.println(tilesToString(crossWordTiles));
             if (crossWordTiles.size() > 1) {
                 allNewWords.add(tilesToString(crossWordTiles));
                 allScoredTiles.addAll(crossWordTiles);
@@ -457,9 +460,16 @@ public class Game {
             }
         }
 
+        System.out.println("Scored Tiles:");
         for (Tile tile : allScoredTiles) {
+            System.out.println(tile);
             totalScore += tile.getScore();
         }
+
+        System.out.println(totalScore);
+
+        System.out.println();
+        System.out.println();
 
 
 
