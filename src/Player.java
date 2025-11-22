@@ -3,9 +3,9 @@ import java.util.List;
 
 public class Player {
     public static final int HAND_SIZE = 7;
-    private final String name;
-    private final List<Tile> hand;
-    private int score;
+    protected final String name;
+    protected final List<Tile> hand;
+    protected int score;
 
     /**
      * Constructs a new {@code Player} with the given name.

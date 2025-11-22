@@ -37,7 +37,6 @@ public class Board {
         return row >= 0 && row < SIZE && col >= 0 && col < SIZE;
     }
 
-
     /**
      * Attempts to place a tile at the given position on the board.
      * Placement is only successful if the position is within bounds and currently empty.

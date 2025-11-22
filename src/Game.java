@@ -20,6 +20,7 @@ public class Game {
     private final ArrayList<ScrabbleView> views;
     private Tile selectedTile;
     private int endPasses;
+    private boolean firstTurn;
 
     /**
      * Constructs a new Game instance with a new board, tile bag,
@@ -36,6 +37,7 @@ public class Game {
         views = new ArrayList<ScrabbleView>();
         selectedTile = null;
         endPasses = 0;
+        firstTurn = true;
     }
 
     /**
@@ -56,34 +58,63 @@ public class Game {
         players.add(new Player(name));
     }
 
+    /**
+     * Adds a new AI player to the game
+     *
+     * @param name The name of the AI player to add.
+     */
+    public void addAIPlayer(String name) {
+        players.add(new AIPlayer(name));
+    }
 
     /**
      * Starts the game by distributing tiles to each player.
      */
     public void startGame() {
         int numPlayers;
+        int numAIPlayers;
 
         this.updateViewsTopText("Welcome to SCRABBLE!");
-        while (true) {
 
+        while (true) {
             try {
                 // Prompt user for number of players
-                numPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of players (2-4):"));
+                numPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of players (1-4): "));
                 if  (numPlayers < 2 || numPlayers > 4) {
-                    JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 2 and 4.");
+                    JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 1 and 4.");
                     continue;
                 }
                 break;
             }
-            catch (Exception e){
+            catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "ERROR! Please enter an Integer.");
             }
         }
 
-        // Gather player names
+        while (true) {
+            try {
+                //Prompt user for number of AI players
+                numAIPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of AI players (0-3): "));
+                if (numAIPlayers < 0 || numAIPlayers > 3) {
+                    JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 0 and 3.");
+                    continue;
+                }
+                break;
+            }
+            catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "ERROR! Please enter an Integer.");
+            }
+        }
+
+        //Gather player names
         for (int i = 1; i <= numPlayers; i++) {
             String name = JOptionPane.showInputDialog("Enter a name for Player " + i + ": ");
             this.addPlayer(name);
+        }
+
+        //Create AI players
+        for (int i = 1; i <= numAIPlayers; i++) {
+            this.addAIPlayer("AI " + i);
         }
         
         for (Player player : players) {
@@ -144,6 +175,7 @@ public class Game {
         }
         
         currentPlayer = (currentPlayer + 1) % players.size();
+        if (players.get(currentPlayer) instanceof AIPlayer) playAITurn(firstTurn);
         this.updateViewsTopText(this.getCurrentPlayer().getName() + "'s turn.");
         this.updateViewsHand();
     }
@@ -444,12 +476,16 @@ public class Game {
             }
         }
 
+        if (firstTurn) firstTurn = false;
         this.updateViewsScore();
-
         this.updateBoard(true);
         placedTiles.clear();
         this.disableViewsFirstMove();
 
         return true;
+    }
+
+    public void playAITurn(boolean firstTurn) {
+
     }
 }

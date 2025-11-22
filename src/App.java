@@ -3,8 +3,6 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 
-
-
 /**
  * The App class represents the main graphical user interface (GUI)
  * for the Scrabble game. It implements the ScrabbleView interface
