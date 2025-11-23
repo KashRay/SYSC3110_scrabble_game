@@ -101,6 +101,46 @@ public class Board {
         return true;
     }
 
+    public boolean hasNeighbor(int row, int col) {
+        if (this.getTile(row - 1, col) != null) return true;
+        if (this.getTile(row + 1, col) != null) return true;
+        if (this.getTile(row, col - 1) != null) return true;
+        if (this.getTile(row, col + 1) != null) return true;
+        return false;
+    }
+
+    public boolean isValidPlacement(String word, int row, int col, boolean isHorizontal, boolean firstTurn) {
+        boolean connects = false;
+        boolean crossesCenter = false;
+
+        //Boundary check
+        if (isHorizontal) {
+            if (col + word.length() > Board.SIZE) return false;
+        }
+        else {
+            if (row + word.length() > Board.SIZE) return false;
+        }
+
+        //Collision and connection check
+        for (int i = 0; i < word.length(); i++) {
+            Tile tileOnBoard = this.getTile(row, col);
+
+            if (row == Board.CENTER && col == Board.CENTER) crossesCenter = true;
+            if (tileOnBoard != null) {
+                if (tileOnBoard.getLetter() != word.charAt(i)) return false;
+                connects = true;
+            }
+            else {
+                if (!firstTurn && hasNeighbor(row, col)) connects = true;
+            }
+
+            if (isHorizontal) col++;
+            else row++;
+        }
+
+        return firstTurn ? crossesCenter : connects;
+    }
+
     /**
      * Returns a visual representation of the current board state.
      * <p>
