@@ -412,14 +412,15 @@ public class Game {
         }
 
         int totalScore = 0;
-        ArrayList<String> allNewWords = new ArrayList<>();
+        ArrayList<ArrayList<Tile>> allNewWords = new ArrayList<>();
 
         //Find the main word (horizontal or vertical
         ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameCol);
         System.out.println("Main Word:\n" + tilesToString(mainWordTiles));
         
-        allNewWords.add(tilesToString(mainWordTiles));
-        ArrayList<Tile> allScoredTiles = new ArrayList<>(mainWordTiles);
+        allNewWords.add(mainWordTiles);
+        ArrayList<Tile> allScoredTiles = new ArrayList<>();
+        if (mainWordTiles.size() > 1) allScoredTiles.addAll(mainWordTiles);        
 
         //Find all cross words by looping and checking other directions
         System.out.println("Crossword Tiles:");
@@ -427,7 +428,7 @@ public class Game {
             ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameCol); //Check other direction
             System.out.println(tilesToString(crossWordTiles));
             if (crossWordTiles.size() > 1) {
-                allNewWords.add(tilesToString(crossWordTiles));
+                allNewWords.add(crossWordTiles);
                 allScoredTiles.addAll(crossWordTiles);
             }
         }
@@ -453,10 +454,57 @@ public class Game {
         }
 
         //Dictionary validation
-        for (String word : allNewWords) {
+        for (ArrayList<Tile> currentWord : allNewWords) {
+            String word = tilesToString(currentWord);
             if (!dictionary.isValidWord(word)) {
                 this.updateViewsTopText("ERROR! '" + word + "' is not a valid word.");
                 return false;
+            }
+        }
+
+        ArrayList<Tile> modifiedTiles = new ArrayList<Tile>(placedTiles);
+
+        for (Tile tile : placedTiles) {
+            switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
+                case DL:
+                    System.out.println(tile + " on DL");
+                    tile.setScore(tile.getScore() * 2);
+                    break;
+                case TL:
+                    System.out.println(tile + " on TL");
+                    tile.setScore(tile.getScore() * 3);
+                    break;
+                case DW:
+                    System.out.println(tile + " on DW");
+                    tile.setScore(tile.getScore() * 2);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                    //innerTile.setScore(innerTile.getScore() * 2);
+                                    //modifiedTiles.add(innerTile);
+                                } 
+                            }
+                        }
+                    }
+                    break;
+                case TW:
+                    System.out.println(tile + " on TW");
+                    tile.setScore(tile.getScore() * 3);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                    allScoredTiles.add(innerTile);
+                                } //innerTile.setScore(innerTile.getScore() * 3);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -467,6 +515,15 @@ public class Game {
         }
 
         System.out.println(totalScore);
+
+        for (Tile tile : modifiedTiles) {
+            if (tile.getScore() != 0) {
+                System.out.println(tile.getLetter());
+                System.out.println("Previous Score: " + tile.getScore());
+                tile.setScore(ScrabbleLetters.get(tile.getLetter()).getScore());
+                System.out.println("New Score: " + tile.getScore());
+            }
+        }
 
         System.out.println();
         System.out.println();
