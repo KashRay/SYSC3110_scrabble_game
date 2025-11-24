@@ -85,7 +85,7 @@ public class ScrabbleController implements ActionListener{
              * - If invalid, reset the unvalidated tiles on the board.
              */
             case "D":
-                if (game.ValidateMove(Boolean.parseBoolean(command[1]))) {
+                if (game.validateMove(Boolean.parseBoolean(command[1]))) {
                     game.nextTurn(false);
                 }
                 else {

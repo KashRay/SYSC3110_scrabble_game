@@ -55,7 +55,7 @@ public class GameTest {
         player.addTile(new Tile('A', 1));
         game.selectTile('A');
         game.placeTile(0, 0);
-        boolean valid = game.ValidateMove(true);
+        boolean valid = game.validateMove(true);
         assertFalse(valid);
     }
 
@@ -65,7 +65,7 @@ public class GameTest {
         player.addTile(new Tile('A', 1));
         game.selectTile('A');
         game.placeTile(Board.CENTER, Board.CENTER);
-        boolean valid = game.ValidateMove(true);
+        boolean valid = game.validateMove(true);
         assertTrue(valid);
     }
 

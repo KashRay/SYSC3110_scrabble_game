@@ -80,13 +80,12 @@ public class Game {
             try {
                 // Prompt user for number of players
                 numPlayers = Integer.parseInt(JOptionPane.showInputDialog("Please enter the number of players (1-4): "));
-                if  (numPlayers < 2 || numPlayers > 4) {
+                if (numPlayers < 1 || numPlayers > 4) {
                     JOptionPane.showMessageDialog(null, "ERROR! Please enter a number between 1 and 4.");
                     continue;
                 }
                 break;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "ERROR! Please enter an Integer.");
             }
         }
@@ -100,8 +99,7 @@ public class Game {
                     continue;
                 }
                 break;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 JOptionPane.showMessageDialog(null, "ERROR! Please enter an Integer.");
             }
         }
@@ -116,7 +114,7 @@ public class Game {
         for (int i = 1; i <= numAIPlayers; i++) {
             this.addAIPlayer("AI " + i);
         }
-        
+
         for (Player player : players) {
             player.addTile(tileBag);
         }
@@ -160,8 +158,7 @@ public class Game {
                 if (endPasses == players.size()) {
                     this.endGame();
                 }
-            }
-            else {
+            } else {
                 // Return all tiles to the bag and draw new ones
                 while (!this.getCurrentPlayer().getHand().isEmpty()) {
                     tileBag.addTile(this.getCurrentPlayer().removeTile());
@@ -169,38 +166,41 @@ public class Game {
                 tileBag.shuffle();
                 this.getCurrentPlayer().addTile(tileBag);
             }
-        }
-        else {
+        } else {
             endPasses = 0;
         }
-        
+
         currentPlayer = (currentPlayer + 1) % players.size();
-        if (players.get(currentPlayer) instanceof AIPlayer) playAITurn(firstTurn);
         this.updateViewsTopText(this.getCurrentPlayer().getName() + "'s turn.");
         this.updateViewsHand();
+        if (getCurrentPlayer() instanceof AIPlayer ai) {
+            Move move = ai.getBestMove(dictionary, board, firstTurn);
+            if (move != null) placeAIMove(move, firstTurn);
+            else nextTurn(true);
+        }
     }
 
-    /** 
-    * Updates all registered views with new text for the top message area. 
-    */
+    /**
+     * Updates all registered views with new text for the top message area.
+     */
     public void updateViewsTopText(String newText) {
         for (ScrabbleView view : views) {
             view.updateTopText(newText);
         }
     }
 
-    /** 
-    * Updates the board display in all views. 
-    */
+    /**
+     * Updates the board display in all views.
+     */
     public void updateBoard(boolean validated) {
         for (ScrabbleView view : views) {
             view.updateBoard(placedTiles, validated);
         }
     }
 
-    /** 
-    * Updates all views with the current player's hand. 
-    */
+    /**
+     * Updates all views with the current player's hand.
+     */
     public void updateViewsHand() {
         Player player = this.getCurrentPlayer();
         for (ScrabbleView view : views) {
@@ -208,9 +208,9 @@ public class Game {
         }
     }
 
-    /** 
-    * Disables the "first move" mode in all views after the first valid play. 
-    */
+    /**
+     * Disables the "first move" mode in all views after the first valid play.
+     */
     public void disableViewsFirstMove() {
         for (ScrabbleView view : views) {
             view.disableFirstMove();
@@ -235,9 +235,9 @@ public class Game {
         }
     }
 
-    /** 
-    * Updates the score display in all registered views. 
-    */
+    /**
+     * Updates the score display in all registered views.
+     */
     public void updateViewsScore() {
         StringBuilder scoreText = new StringBuilder();
         for (Player player : players) {
@@ -268,15 +268,13 @@ public class Game {
     public boolean placeTile(int x, int y) {
         if (this.selectedTile == null) {
             this.updateViewsTopText("Select a tile first!");
-        }
-        else {
+        } else {
             if (this.selectedTile.getScore() == 0) {
                 String input = JOptionPane.showInputDialog("Enter a letter for the blank tile: ");
 
                 if (input != null && !input.trim().isEmpty() && Character.isLetter(input.trim().charAt(0))) {
                     this.selectedTile.setLetter(input.trim().charAt(0));
-                }
-                else {
+                } else {
                     JOptionPane.showMessageDialog(null, "ERROR! Please enter a letter for the blank tile!");
                     return false;
                 }
@@ -285,10 +283,9 @@ public class Game {
                 this.selectedTile.setCoords(x, y);
                 placedTiles.add(selectedTile);
                 this.updateBoard(false);
-                JOptionPane.showMessageDialog(null, this.getCurrentPlayer().getName() + " placed " + this.selectedTile.getLetter() + " at (" +  x + "," + y + ").");
+                JOptionPane.showMessageDialog(null, this.getCurrentPlayer().getName() + " placed " + this.selectedTile.getLetter() + " at (" + x + "," + y + ").");
                 return true;
-            }
-            else {
+            } else {
                 if (this.selectedTile.getScore() == 0) {
                     this.selectedTile.setLetter(' ');
                 }
@@ -300,26 +297,24 @@ public class Game {
 
     /**
      * New helper method that creates a list of all tiles used to create a word.
-     * @param startTile The tile to start searching from (one of the placed tiles).
+     *
+     * @param startTile    The tile to start searching from (one of the placed tiles).
      * @param isHorizontal The direction to scan (true for horizontal, false for vertical)
      * @return A list of all tiles forming the completed word in the direction.
      */
-    public ArrayList<Tile> getWordTiles(Tile startTile, boolean isHorizontal) {
+    public static ArrayList<Tile> getWordTiles(Board board, Tile startTile, boolean isHorizontal) {
         ArrayList<Tile> wordTiles = new ArrayList<>();
         int row = startTile.getX();
         int col = startTile.getY();
 
         //Scan backwards (left or up) to find the start of the word
         if (isHorizontal) {
-            while (col >= 0 && board.getTile(row, col) != null) {
-                col--;
-            }
+            while (col >= 0 && board.getTile(row, col) != null) col--;
             col++; //Move back to the first letter
+
         }
         else {
-            while (row >= 0 && board.getTile(row, col) != null) {
-                row--;
-            }
+            while (row >= 0 && board.getTile(row, col) != null) row--;
             row++; //Move back to the first letter
         }
 
@@ -342,10 +337,11 @@ public class Game {
 
     /**
      * Helper method to convert tiles forming a word into a string.
+     *
      * @param tiles The list of tiles forming a word.
      * @return A string version of the word being created.
      */
-    private String tilesToString(List<Tile> tiles) {
+    private static String tilesToString(List<Tile> tiles) {
         StringBuilder sb = new StringBuilder();
         for (Tile tile : tiles) {
             sb.append(tile.getLetter());
@@ -355,110 +351,133 @@ public class Game {
     }
 
     /**
-     * Validates the tiles placed during the turn to ensure the move follows Scrabble rules.
-     * If valid, it calculates teh score, adds it to the player, and returns true.
-     * If invalid, it updates teh view with an error message and returns false.
+     * Analyzes a move (list of tiles placed on the board) to see if it is valid
      *
-     * @param firstTurn Whether this is the first move of the game.
-     * @return true if the move is valid, false otherwise.
+     * @param board        The current board
+     * @param dictionary   The dictionary containing all the words
+     * @param tilesToCheck The list of tiles that are to be placed
+     * @param firstTurn    Checks if it is the firstTurn or not
+     * @return The score if valid, throws IllegalArgumentException if invalid.
      */
-    public boolean ValidateMove(boolean firstTurn) {
-        if (placedTiles.isEmpty()) {
-            this.updateViewsTopText("ERROR! You have not placed any tiles.");
-            return false;
-        }
+    public static int analyzeMove(Board board, Dictionary dictionary, List<Tile> tilesToCheck, boolean firstTurn) throws IllegalArgumentException {
+        if (tilesToCheck.isEmpty()) throw new IllegalArgumentException("ERROR! You have not placed any tiles.");
 
         boolean sameRow = true;
         boolean sameCol = true;
 
-
-        // Check if all tiles are in the same row or column
-        for (int i = 1; i < placedTiles.size(); i++) {
-            if (placedTiles.get(i).getX() != placedTiles.get(i-1).getX()) sameCol = false;
-            if (placedTiles.get(i).getY() != placedTiles.get(i-1).getY()) sameRow = false;
+        //Check if all tiles are on the same row or same column
+        for (int i = 1; i < tilesToCheck.size(); i++) {
+            if (tilesToCheck.get(i).getX() != tilesToCheck.get(i - 1).getX()) sameCol = false;
+            if (tilesToCheck.get(i).getY() != tilesToCheck.get(i - 1).getY()) sameRow = false;
         }
 
-        if (!sameRow && !sameCol) {
-            this.updateViewsTopText("ERROR! All tiles must be placed on the same row or column");
-            return false;
-        }
+        if (!sameRow && !sameCol) throw new  IllegalArgumentException("ERROR! All tiles must be placed on the same row or column.");
 
-
-        if (placedTiles.size() > 1) {
+        if (tilesToCheck.size() > 1) {
+            List<Tile> sorted = new ArrayList<>(tilesToCheck);
             int start, end, otherCoord;
-            if (!sameRow) {
-                placedTiles.sort(Comparator.comparingInt(Tile::getY)); //Sort by column
-                start = placedTiles.getFirst().getY();
-                end = placedTiles.getLast().getY();
-                otherCoord = placedTiles.getFirst().getX(); //Row is constant
-            } else {
-                placedTiles.sort(Comparator.comparingInt(Tile::getX)); //Sort by row
-                start = placedTiles.getFirst().getX();
-                end = placedTiles.getLast().getX();
-                otherCoord = placedTiles.getFirst().getY(); //Column is constant
+            if (!sameRow) { //Vertical word
+                sorted.sort(Comparator.comparing(Tile::getY)); //Sort by column
+                start = sorted.getFirst().getY();
+                end = sorted.getLast().getY();
+                otherCoord = sorted.getFirst().getX(); //Row is constant
+            }
+            else { //Horizontal word
+                sorted.sort(Comparator.comparing(Tile::getX)); //Sort by row
+                start = sorted.getFirst().getX();
+                end = sorted.getLast().getX();
+                otherCoord = sorted.getFirst().getY(); //Column is constant
             }
 
             //Check for empty spaces between the start and end of the placed tiles
-            if (!board.haveEmptySpace(start, end, otherCoord, !sameRow)) {
-                this.updateViewsTopText("Error! The placed tiles must all be used to form one word.");
-                return false;
-            }
+            if (!board.haveEmptySpace(start, end, otherCoord, !sameRow)) throw new IllegalArgumentException("ERROR! The placed tiles must all be used to form one word.");
         }
 
-        // Ensure first word crosses the center tile
-        if (firstTurn && board.getTile(Board.CENTER, Board.CENTER) == null) {
-            this.updateViewsTopText("ERROR! The first word must pass through the center.");
-            return false;
-        }
+        //Ensure first word crosses the center tile
+        if (firstTurn && board.getTile(Board.CENTER, Board.CENTER) == null) throw new IllegalArgumentException("ERROR! The first word must pass through the center.");
 
         int totalScore = 0;
         ArrayList<ArrayList<Tile>> allNewWords = new ArrayList<>();
 
-        //Find the main word (horizontal or vertical
-        ArrayList<Tile> mainWordTiles = getWordTiles(placedTiles.getFirst(), sameCol);
-        System.out.println("Main Word:\n" + tilesToString(mainWordTiles));
-        
+        //Determine orientation for main word
+        ArrayList<Tile> mainWordTiles = getWordTiles(board, tilesToCheck.getFirst(), sameCol);
         allNewWords.add(mainWordTiles);
         ArrayList<Tile> allScoredTiles = new ArrayList<>();
-        if (mainWordTiles.size() > 1) allScoredTiles.addAll(mainWordTiles);        
+        if (mainWordTiles.size() > 1) allScoredTiles.addAll(mainWordTiles);
 
         //Find all cross words by looping and checking other directions
-        System.out.println("Crossword Tiles:");
-        for (Tile placedTile : placedTiles) {
-            ArrayList<Tile> crossWordTiles = getWordTiles(placedTile, !sameCol); //Check other direction
-            System.out.println(tilesToString(crossWordTiles));
+        for (Tile tile : tilesToCheck) {
+            //Check perpendicular direction for cross-words
+            ArrayList<Tile> crossWordTiles = getWordTiles(board, tile, !sameCol); //Check other direction
             if (crossWordTiles.size() > 1) {
                 allNewWords.add(crossWordTiles);
                 allScoredTiles.addAll(crossWordTiles);
             }
         }
 
+        if (!allScoredTiles.containsAll(tilesToCheck)) throw new IllegalArgumentException("ERROR! All tiles must connect to form valid words (no gaps).");
+
         if (!firstTurn) {
             boolean connects = false;
             for (Tile tile : allScoredTiles) {
-                if (!placedTiles.contains(tile)) {
+                if (!tilesToCheck.contains(tile)) {
                     connects = true;
                     break;
                 }
             }
-            if (!connects) {
-                this.updateViewsTopText("ERROR! Move must connect to an existing tile.");
-                return false;
-            }
+            if (!connects) throw new IllegalArgumentException("ERROR! The move must connect to an existing tile.");
         }
 
         //If no new words were created (placed a tile without touching anything)
-        if (allNewWords.isEmpty()) {
-            this.updateViewsTopText("ERROR! Your move did not form any new words.");
-            return false;
-        }
+        if (allNewWords.isEmpty()) throw new IllegalArgumentException("No words formed.");
 
         //Dictionary validation
         for (ArrayList<Tile> currentWord : allNewWords) {
             String word = tilesToString(currentWord);
-            if (!dictionary.isValidWord(word)) {
-                this.updateViewsTopText("ERROR! '" + word + "' is not a valid word.");
-                return false;
+            if (!dictionary.isValidWord(word)) throw new IllegalArgumentException("ERROR! " + word + " is not a valid word.");
+        }
+
+        //Calculate the score
+        ArrayList<Tile> modifiedTiles = new ArrayList<>(placedTiles);
+        for (Tile tile : placedTiles) {
+            switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
+                case DL:
+                    System.out.println(tile + " on DL");
+                    tile.setScore(tile.getScore() * 2);
+                    break;
+                case TL:
+                    System.out.println(tile + " on TL");
+                    tile.setScore(tile.getScore() * 3);
+                    break;
+                case DW:
+                    System.out.println(tile + " on DW");
+                    tile.setScore(tile.getScore() * 2);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case TW:
+                    System.out.println(tile + " on TW");
+                    tile.setScore(tile.getScore() * 3);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                    allScoredTiles.add(innerTile);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -514,45 +533,75 @@ public class Game {
             totalScore += tile.getScore();
         }
 
-        System.out.println(totalScore);
-
         for (Tile tile : modifiedTiles) {
             if (tile.getScore() != 0) {
-                System.out.println(tile.getLetter());
-                System.out.println("Previous Score: " + tile.getScore());
                 tile.setScore(ScrabbleLetters.get(tile.getLetter()).getScore());
-                System.out.println("New Score: " + tile.getScore());
             }
         }
 
-        System.out.println();
-        System.out.println();
-
-
-
-        this.getCurrentPlayer().addScore(totalScore);
-        //this.updateViewsTopText(this.getCurrentPlayer().getName() + " has scored " + totalScore + " pts.");
-
-        if (!tileBag.isEmpty()) {
-            this.getCurrentPlayer().addTile(this.tileBag);
-            if (tileBag.isEmpty()) {
-                this.updateViewsTopText("Tilebag is now empty!");
-                for (ScrabbleView view : views) {
-                    view.exchangeToPass();
-                }
-            }
-        }
-
-        if (firstTurn) firstTurn = false;
-        this.updateViewsScore();
-        this.updateBoard(true);
-        placedTiles.clear();
-        this.disableViewsFirstMove();
-
-        return true;
+        return totalScore;
     }
 
-    public void playAITurn(boolean firstTurn) {
+    public boolean validateMove(boolean firstTurn) {
+        try {
+            int score = analyzeMove(this.board, this.dictionary, placedTiles, firstTurn);
 
+            //If valid (no exception), make move official
+            getCurrentPlayer().addScore(score);
+
+            if (!tileBag.isEmpty()) {
+                getCurrentPlayer().addTile(this.tileBag);
+                if (tileBag.isEmpty()) {
+                    updateViewsTopText("Tile bag is now empty!");
+                    for (ScrabbleView view : views) view.exchangeToPass();
+                }
+            }
+
+            if (this.firstTurn) this.firstTurn = false;
+            updateViewsScore();
+            updateBoard(true);
+            placedTiles.clear();
+            disableViewsFirstMove();
+            return true;
+        }
+        catch (IllegalArgumentException e) {
+            updateViewsTopText(e.getMessage());
+            return false;
+        }
+    }
+
+
+    public void placeAIMove(Move move, boolean firstTurn) {
+        int row = move.startRow();
+        int col = move.startCol();
+
+        for (int i = 0; i < move.word().length(); i++) {
+            char letter = move.word().charAt(i);
+
+            if (board.getTile(row, col) == null) {
+                Tile tile = getCurrentPlayer().removeTileByLetter(letter);
+                if (tile == null) {
+                    tile = getCurrentPlayer().removeTileByLetter(' ');
+                    if (tile != null) {
+                        tile.setLetter(letter);
+                    }
+                }
+                if (tile != null) {
+                    tile.setCoords(row, col);
+                    board.placeTile(row, col, tile);
+                    placedTiles.add(tile);
+                }
+            }
+            if (move.isHorizontal()) col++;
+            else row++;
+        }
+
+        this.updateBoard(false);
+
+        if (this.validateMove(firstTurn)) this.nextTurn(false);
+        else {
+            this.removeViewsPlacedTiles();
+            this.nextTurn(true);
+        }
     }
 }

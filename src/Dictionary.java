@@ -2,18 +2,18 @@ import java.util.*;
 import java.io.*;
 
 public class Dictionary {
-    private final List<String> words;
+    private final Set<String> words;
 
     public Dictionary() {
-        words = new ArrayList<>();
+        words = new HashSet<>();
     }
 
     /**
      * Used by the AI to see all available words and generate moves.
      *
-     * @return the list of all available words
+     * @return the set of all available words
      */
-    public List<String> getWords() {
+    public Set<String> getWords() {
         return words;
     }
 

@@ -98,7 +98,7 @@ public class Tile {
         if (o instanceof Tile) {
             return (this.letter == ((Tile) o).getLetter() && this.score == ((Tile) o).getScore() && this.x == ((Tile) o).getX() && this.y == ((Tile) o).getY());
         }
-        
+
         return false;
     }
 }
