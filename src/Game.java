@@ -283,7 +283,7 @@ public class Game {
                 this.selectedTile.setCoords(x, y);
                 placedTiles.add(selectedTile);
                 this.updateBoard(false);
-                JOptionPane.showMessageDialog(null, this.getCurrentPlayer().getName() + " placed " + this.selectedTile.getLetter() + " at (" + x + "," + y + ").");
+                this.updateViewsTopText(this.getCurrentPlayer().getName() + " placed " + this.selectedTile.getLetter() + " at (" + x + "," + y + ").");
                 return true;
             } else {
                 if (this.selectedTile.getScore() == 0) {
@@ -438,78 +438,28 @@ public class Game {
         }
 
         //Calculate the score
-        ArrayList<Tile> modifiedTiles = new ArrayList<>(placedTiles);
-        for (Tile tile : placedTiles) {
-            switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
-                case DL:
-                    System.out.println(tile + " on DL");
-                    tile.setScore(tile.getScore() * 2);
-                    break;
-                case TL:
-                    System.out.println(tile + " on TL");
-                    tile.setScore(tile.getScore() * 3);
-                    break;
-                case DW:
-                    System.out.println(tile + " on DW");
-                    tile.setScore(tile.getScore() * 2);
-                    for (ArrayList<Tile> currentWord : allNewWords) {
-                        if (currentWord.contains(tile)) {
-                            for (Tile innerTile : currentWord) {
-                                if (!tile.equals(innerTile)) {
-                                    allScoredTiles.add(innerTile);
-                                }
-                            }
-                        }
-                    }
-                    break;
-                case TW:
-                    System.out.println(tile + " on TW");
-                    tile.setScore(tile.getScore() * 3);
-                    for (ArrayList<Tile> currentWord : allNewWords) {
-                        if (currentWord.contains(tile)) {
-                            for (Tile innerTile : currentWord) {
-                                if (!tile.equals(innerTile)) {
-                                    allScoredTiles.add(innerTile);
-                                    allScoredTiles.add(innerTile);
-                                }
-                            }
-                        }
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
         ArrayList<Tile> modifiedTiles = new ArrayList<Tile>(placedTiles);
-
         for (Tile tile : placedTiles) {
             switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
                 case DL:
-                    System.out.println(tile + " on DL");
                     tile.setScore(tile.getScore() * 2);
                     break;
                 case TL:
-                    System.out.println(tile + " on TL");
                     tile.setScore(tile.getScore() * 3);
                     break;
                 case DW:
-                    System.out.println(tile + " on DW");
                     tile.setScore(tile.getScore() * 2);
                     for (ArrayList<Tile> currentWord : allNewWords) {
                         if (currentWord.contains(tile)) {
                             for (Tile innerTile : currentWord) {
                                 if (!tile.equals(innerTile)) {
                                     allScoredTiles.add(innerTile);
-                                    //innerTile.setScore(innerTile.getScore() * 2);
-                                    //modifiedTiles.add(innerTile);
                                 } 
                             }
                         }
                     }
                     break;
                 case TW:
-                    System.out.println(tile + " on TW");
                     tile.setScore(tile.getScore() * 3);
                     for (ArrayList<Tile> currentWord : allNewWords) {
                         if (currentWord.contains(tile)) {
@@ -517,7 +467,7 @@ public class Game {
                                 if (!tile.equals(innerTile)) {
                                     allScoredTiles.add(innerTile);
                                     allScoredTiles.add(innerTile);
-                                } //innerTile.setScore(innerTile.getScore() * 3);
+                                }
                             }
                         }
                     }
@@ -527,9 +477,7 @@ public class Game {
             }
         }
 
-        System.out.println("Scored Tiles:");
         for (Tile tile : allScoredTiles) {
-            System.out.println(tile);
             totalScore += tile.getScore();
         }
 

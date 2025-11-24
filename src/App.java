@@ -307,7 +307,7 @@ public class App extends JFrame implements ScrabbleView {
      * @param numTiles number of tiles left in the bag
      */
     public void updateScore(String newScore, int numTiles) {
-        scoreField.setText(newScore + "\nTiles Remaining: " + numTiles);
+        scoreField.setText(newScore + "\nTiles Remaining: " + numTiles + "\n\nCYAN:\tDouble Letter\nBLUE:\tTriple Letter\nYELLOW:\tDouble Word\nRED:\tTriple Word\n\nLetter Score Values:\nA:\t1\nB:\t3\nC:\t3\nD:\t2\nE:\t1\nF:\t4\nG:\t2\nH:\t4\nI:\t1\nJ:\t8\nK:\t5\nL:\t1\nM:\t3\nN:\t1\nO:\t1\nP:\t3\nQ:\t10\nR:\t1\nS:\t1\nT:\t1\nU:\t1\nV:\t4\nW:\t4\nX:\t8\nY:\t4\nZ:\t10");
     }
 
     /** 
