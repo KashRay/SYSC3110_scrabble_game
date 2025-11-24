@@ -1,6 +1,6 @@
 public class Tile {
     private char letter;
-    private final int score;
+    private int score;
     private int x;
     private int y;
 
@@ -34,6 +34,15 @@ public class Tile {
      */
     public void setLetter(char letter) {
         this.letter = Character.toUpperCase(letter);
+    }
+
+    /**
+     * Sets the score of the tile. Used for premium tiles.
+     *
+     * @param score the score to be set
+     */
+    public void setScore(int score) {
+        this.score = score;
     }
 
     /**
@@ -82,5 +91,14 @@ public class Tile {
     public String toString() {
         // Concatenate the letter and score for easy display
         return this.letter + "" + this.score;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Tile) {
+            return (this.letter == ((Tile) o).getLetter() && this.score == ((Tile) o).getScore() && this.x == ((Tile) o).getX() && this.y == ((Tile) o).getY());
+        }
+
+        return false;
     }
 }

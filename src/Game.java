@@ -397,19 +397,20 @@ public class Game {
         if (firstTurn && board.getTile(Board.CENTER, Board.CENTER) == null) throw new IllegalArgumentException("ERROR! The first word must pass through the center.");
 
         int totalScore = 0;
-        ArrayList<String> allNewWords = new ArrayList<>();
+        ArrayList<ArrayList<Tile>> allNewWords = new ArrayList<>();
 
         //Determine orientation for main word
         ArrayList<Tile> mainWordTiles = getWordTiles(board, tilesToCheck.getFirst(), sameCol);
-        allNewWords.add(tilesToString(mainWordTiles));
-        ArrayList<Tile> allScoredTiles = new ArrayList<>(mainWordTiles);
+        allNewWords.add(mainWordTiles);
+        ArrayList<Tile> allScoredTiles = new ArrayList<>();
+        if (mainWordTiles.size() > 1) allScoredTiles.addAll(mainWordTiles);
 
         //Find all cross words by looping and checking other directions
         for (Tile tile : tilesToCheck) {
             //Check perpendicular direction for cross-words
             ArrayList<Tile> crossWordTiles = getWordTiles(board, tile, !sameCol); //Check other direction
             if (crossWordTiles.size() > 1) {
-                allNewWords.add(tilesToString(crossWordTiles));
+                allNewWords.add(crossWordTiles);
                 allScoredTiles.addAll(crossWordTiles);
             }
         }
@@ -431,13 +432,64 @@ public class Game {
         if (allNewWords.isEmpty()) throw new IllegalArgumentException("No words formed.");
 
         //Dictionary validation
-        for (String word : allNewWords) {
-            System.out.println("Checking word validity: " + word);
+        for (ArrayList<Tile> currentWord : allNewWords) {
+            String word = tilesToString(currentWord);
             if (!dictionary.isValidWord(word)) throw new IllegalArgumentException("ERROR! " + word + " is not a valid word.");
         }
 
         //Calculate the score
-        for (Tile tile : allScoredTiles) totalScore += tile.getScore();
+        ArrayList<Tile> modifiedTiles = new ArrayList<>(placedTiles);
+        for (Tile tile : placedTiles) {
+            switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
+                case DL:
+                    System.out.println(tile + " on DL");
+                    tile.setScore(tile.getScore() * 2);
+                    break;
+                case TL:
+                    System.out.println(tile + " on TL");
+                    tile.setScore(tile.getScore() * 3);
+                    break;
+                case DW:
+                    System.out.println(tile + " on DW");
+                    tile.setScore(tile.getScore() * 2);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                case TW:
+                    System.out.println(tile + " on TW");
+                    tile.setScore(tile.getScore() * 3);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                    allScoredTiles.add(innerTile);
+                                }
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        for (Tile tile : allScoredTiles) {
+            totalScore += tile.getScore();
+        }
+
+        for (Tile tile : modifiedTiles) {
+            if (tile.getScore() != 0) {
+                tile.setScore(ScrabbleLetters.get(tile.getLetter()).getScore());
+            }
+        }
 
         return totalScore;
     }
