@@ -481,7 +481,55 @@ public class Game {
             }
         }
 
+        ArrayList<Tile> modifiedTiles = new ArrayList<Tile>(placedTiles);
+
+        for (Tile tile : placedTiles) {
+            switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
+                case DL:
+                    System.out.println(tile + " on DL");
+                    tile.setScore(tile.getScore() * 2);
+                    break;
+                case TL:
+                    System.out.println(tile + " on TL");
+                    tile.setScore(tile.getScore() * 3);
+                    break;
+                case DW:
+                    System.out.println(tile + " on DW");
+                    tile.setScore(tile.getScore() * 2);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                    //innerTile.setScore(innerTile.getScore() * 2);
+                                    //modifiedTiles.add(innerTile);
+                                } 
+                            }
+                        }
+                    }
+                    break;
+                case TW:
+                    System.out.println(tile + " on TW");
+                    tile.setScore(tile.getScore() * 3);
+                    for (ArrayList<Tile> currentWord : allNewWords) {
+                        if (currentWord.contains(tile)) {
+                            for (Tile innerTile : currentWord) {
+                                if (!tile.equals(innerTile)) {
+                                    allScoredTiles.add(innerTile);
+                                    allScoredTiles.add(innerTile);
+                                } //innerTile.setScore(innerTile.getScore() * 3);
+                            }
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        System.out.println("Scored Tiles:");
         for (Tile tile : allScoredTiles) {
+            System.out.println(tile);
             totalScore += tile.getScore();
         }
 
