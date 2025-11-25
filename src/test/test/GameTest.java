@@ -79,4 +79,98 @@ public class GameTest {
         game.endGame();
         assertTrue(true);
     }
+
+    @Test
+    public void aiFindsValidMove() {
+        Dictionary dict = new Dictionary();
+        dict.getWords().add("CAT");
+
+        Board board = new Board();  // Empty board
+
+        AIPlayer ai = new AIPlayer("Bot");
+        ai.addTile(new Tile('C', 3));
+        ai.addTile(new Tile('A', 1));
+        ai.addTile(new Tile('T', 1));
+
+        Move move = ai.getBestMove(dict, board, true);
+
+        assertNotNull("AI should find a move using CAT", move);
+        assertEquals("CAT", move.word());
+    }
+
+    @Test
+    public void aiReturnsNullWhenNoPlayableMove() {
+        Dictionary dict = new Dictionary();
+        dict.getWords().add("DOG");
+
+        Board board = new Board();
+
+        AIPlayer ai = new AIPlayer("Bot");
+        ai.addTile(new Tile('X', 8));
+        ai.addTile(new Tile('Q', 10));
+        ai.addTile(new Tile('Z', 10));
+
+        Move move = ai.getBestMove(dict, board, true);
+
+        assertNull("AI should not find a move with unplayable letters", move);
+    }
+
+    @Test
+    public void aiChoosesHighestScoringMove() {
+        Dictionary dict = new Dictionary();
+        dict.getWords().add("CAT");
+        dict.getWords().add("AXE");
+
+        Board board = new Board();
+
+        AIPlayer ai = new AIPlayer("Bot");
+        ai.addTile(new Tile('C', 3));
+        ai.addTile(new Tile('A', 1));
+        ai.addTile(new Tile('T', 1));
+        ai.addTile(new Tile('A', 1));
+        ai.addTile(new Tile('X', 8));
+        ai.addTile(new Tile('E', 1));
+
+        Move move = ai.getBestMove(dict, board, true);
+
+        assertNotNull(move);
+        assertEquals("AXE", move.word());  // AXE scores more than CAT
+    }
+
+    @Test
+    public void aiUsesBlankTileToFormWord() {
+        Dictionary dict = new Dictionary();
+        dict.getWords().add("DOG");
+
+        Board board = new Board();
+
+        AIPlayer ai = new AIPlayer("Bot");
+        ai.addTile(new Tile('D', 2));
+        ai.addTile(new Tile('O', 1));
+        ai.addTile(new Tile(' ', 0)); // blank tile
+
+        Move move = ai.getBestMove(dict, board, true);
+
+        assertNotNull("AI should use blank tile as G", move);
+        assertEquals("DOG", move.word());
+    }
+
+    @Test
+    public void invalidPlacementCausesFailure() {
+        Dictionary dict = new Dictionary();
+        dict.getWords().add("CAT");
+
+        Board board = new Board();
+        board.placeTile(Board.CENTER, Board.CENTER, new Tile('X', 8));
+
+        AIPlayer ai = new AIPlayer("Bot");
+        ai.addTile(new Tile('C', 3));
+        ai.addTile(new Tile('A', 1));
+        ai.addTile(new Tile('T', 1));
+
+        Move move = ai.getBestMove(dict, board, true);
+
+        assertNull("AI should not place tiles on occupied center", move);
+    }
+
 }
