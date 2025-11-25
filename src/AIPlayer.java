@@ -1,12 +1,30 @@
 import java.util.*;
 
 public class AIPlayer extends Player {
-
-
+    
+    /**
+     * Constructs a new AIPlayer as a child of Player
+     * 
+     * @param name the name of the AIPlayer
+     */
     public AIPlayer(String name) {
         super(name);
     }
 
+    /**
+     * Determines the score a certain word placement would earn.
+     * 
+     * @param word              The word to be placed
+     * @param row               The starting row of the word
+     * @param col               The starting coloumn of the word
+     * @param isHorizontal      Whether the word is horizontal or vertical
+     * @param board             The board that the word is placed on
+     * @param dictionary        The dictionary that contains the list of eligible words
+     * @param firstTurn         Checks whether it's the first turn or not
+     * @param letterFrequency   A map determining how many of each letter the AIPlayer has
+     * @param totalBlanks       The number of blanks in the AIPlayer's hand
+     * @return  The score the move would earn
+     */
     private int getSimulatedScore(String word, int row, int col, boolean isHorizontal, Board board, Dictionary dictionary, boolean firstTurn, Map<Character, Integer> letterFrequency, int totalBlanks) {
         //Geometry and overlap check
         if (!board.isValidPlacement(word, row, col, isHorizontal, firstTurn)) return -1;
@@ -59,6 +77,14 @@ public class AIPlayer extends Player {
         return score;
     }
 
+    /**
+     * Determines the best move the AIPlayer can make
+     * 
+     * @param dictionary    The dictionary that contains the list of eligible words
+     * @param board         The board that the word is placed on
+     * @param firstTurn     Checks whether it's the first turn or not
+     * @return  The move that would earn the most points
+     */
     public Move getBestMove(Dictionary dictionary, Board board, boolean firstTurn) {
         Set<String> wordlist = dictionary.getWords();
         Move bestMove = null;

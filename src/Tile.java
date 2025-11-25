@@ -93,6 +93,12 @@ public class Tile {
         return this.letter + "" + this.score;
     }
 
+    /**
+     * Compares this tile object to another object and return whether they are equal or not.
+     * 
+     * @param o the object to compare to
+     * @return whether the object o is equal to this or not
+     */
     @Override
     public boolean equals(Object o) {
         if (o instanceof Tile) {

@@ -61,6 +61,7 @@ public class App extends JFrame implements ScrabbleView {
             button.setText("_");
             int x = i / Board.SIZE;
             int y = i % Board.SIZE;
+            //Set background color based on the tile type
             switch (Board.premiumTiles[x][y]) {
                 case DL:
                     button.setBackground(Color.CYAN);
@@ -226,7 +227,7 @@ public class App extends JFrame implements ScrabbleView {
         for (Tile tile : placedTiles) {
             currentSquare = squares[Board.SIZE * tile.getX() + tile.getY()];
             currentSquare.setText("" + tile.getLetter());
-            // Green for confirmed moves, yellow for pending ones
+            // Green for confirmed moves, magenta for pending ones
             if (validated) {
                 currentSquare.setBackground(Color.GREEN);
             }
@@ -275,6 +276,7 @@ public class App extends JFrame implements ScrabbleView {
                 button.setText("_");
                 int x = i / Board.SIZE;
                 int y = i % Board.SIZE;
+                //Set background color based on the tile type
                 switch (Board.premiumTiles[x][y]) {
                     case DL:
                         button.setBackground(Color.CYAN);

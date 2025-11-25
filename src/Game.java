@@ -441,13 +441,13 @@ public class Game {
         ArrayList<Tile> modifiedTiles = new ArrayList<Tile>(placedTiles);
         for (Tile tile : placedTiles) {
             switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
-                case DL:
+                case DL:    //If tile is on Double Letter space
                     tile.setScore(tile.getScore() * 2);
                     break;
-                case TL:
+                case TL:    //If tile is on Triple Letter space
                     tile.setScore(tile.getScore() * 3);
                     break;
-                case DW:
+                case DW:    //If tile is on Double Word space
                     tile.setScore(tile.getScore() * 2);
                     for (ArrayList<Tile> currentWord : allNewWords) {
                         if (currentWord.contains(tile)) {
@@ -459,7 +459,7 @@ public class Game {
                         }
                     }
                     break;
-                case TW:
+                case TW:    //If tile is on Triple Word space
                     tile.setScore(tile.getScore() * 3);
                     for (ArrayList<Tile> currentWord : allNewWords) {
                         if (currentWord.contains(tile)) {
@@ -481,6 +481,7 @@ public class Game {
             totalScore += tile.getScore();
         }
 
+        //Restore original score values of modified tiles
         for (Tile tile : modifiedTiles) {
             if (tile.getScore() != 0) {
                 tile.setScore(ScrabbleLetters.get(tile.getLetter()).getScore());
@@ -490,6 +491,12 @@ public class Game {
         return totalScore;
     }
 
+    /**
+     * Updates the score of the player if their move is valid and adds tiles to their hand.
+     * 
+     * @param firstTurn     Checks if it is the firstTurn or not
+     * @return  whether the move was valid or not.
+     */
     public boolean validateMove(boolean firstTurn) {
         try {
             int score = analyzeMove(this.board, this.dictionary, placedTiles, firstTurn);
@@ -497,8 +504,10 @@ public class Game {
             //If valid (no exception), make move official
             getCurrentPlayer().addScore(score);
 
+            //Add tiles to current players hand. 
             if (!tileBag.isEmpty()) {
                 getCurrentPlayer().addTile(this.tileBag);
+                //Check if TileBag is empty.
                 if (tileBag.isEmpty()) {
                     updateViewsTopText("Tile bag is now empty!");
                     for (ScrabbleView view : views) view.exchangeToPass();
@@ -513,16 +522,23 @@ public class Game {
             return true;
         }
         catch (IllegalArgumentException e) {
+            //Send message as to why their move was illegal
             updateViewsTopText(e.getMessage());
             return false;
         }
     }
 
-
+    /**
+     * Performs the logic for an AI to make a move
+     * 
+     * @param move          The AI's move
+     * @param firstTurn     Checks if it is the firstTurn or not
+    */
     public void placeAIMove(Move move, boolean firstTurn) {
         int row = move.startRow();
         int col = move.startCol();
 
+        //Place every tile on the board
         for (int i = 0; i < move.word().length(); i++) {
             char letter = move.word().charAt(i);
 
@@ -544,6 +560,7 @@ public class Game {
             else row++;
         }
 
+        //Update the board on the views
         this.updateBoard(false);
 
         if (this.validateMove(firstTurn)) this.nextTurn(false);
