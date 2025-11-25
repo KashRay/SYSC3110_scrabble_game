@@ -1,28 +1,25 @@
 # SYSC 3110 Group 15 Scrabble Project
 
 ## Deliverable Breakdown
-The current version, **Milestone 2**, extends the text-based MVP from Milestone 1 by implementing a fully functional **graphical user interface (GUI)** and refactoring the project to follow the **Model-View-Controller (MVC)** architecture.
+Milestone 3 extends our full MVC-based Scrabble implementation by adding **blank tiles**, **premium squares**, **complete AI gameplay**, and **comprehensive JUnit testing**.
 
 This milestone includes:
-- **Graphical Interface (View):**  
-  Implemented using `JFrame` and `Swing` components (`App.java`). Players interact with the game entirely through mouse input.
-- **Controller:**  
-  Implemented in `ScrabbleController.java`, handling all user actions and communication between the model and the view through Java’s event model.
-- **Model:**  
-  Core logic from Milestone 1 (`Game.java`, `Board.java`, `Player.java`, `Tile.java`, `TileBag.java`, `Dictionary.java`) refactored to integrate with the MVC structure.
-- **Dictionary:**  
-  Updated to load words from a file and perform real-time validation of placed words.
-- **UML and Sequence Diagrams:**  
-  Updated to include all classes, full method and variable signatures, and interactions between the Model, View, and Controller.
-- **JUnit Testing:**  
-  Model classes now include comprehensive JUnit tests for word placement, scoring logic, and dictionary validation.
+- **Model:** (`Game`, `Board`, `Player`, `AIPlayer`, `Tile`, `TileBag`, `Dictionary`) supporting premium squares, blank tiles, scoring rules, AI turns, and move validation.
+- **View:** (`App`) Swing-based graphical interface for board interaction, tile selection, scoring display, and turn updates.
+- **Controller:** (`ScrabbleController`) event-driven communication between UI and game logic.
+- **Blank Tiles:** Score 0; player/AI assigns a letter when played.
+- **Premium Squares:** Full 15×15 Scrabble layout (DL, TL, DW, TW) with correct word/letter multiplier logic.
+- **AI Player:** Generates and evaluates all legal moves, choosing the **highest-scoring valid move** based on full board simulation.
+- **Dictionary:** File-based loading and validation of all words used by the player and AI.
+- **Testing:** JUnit tests covering move validation, scoring, dictionary loading, blank tile rules, premium squares, and AI legality.
+- **Documentation:** UML class diagram and sequence diagrams fully updated to reflect Milestone 3 behaviour.
 
-Deliverables included in this submission:
-- Updated UML and sequence diagrams
-- Compilable `.jar` file
-- Java source code (Model, View, Controller)
-- JUnit test suite for model components
-- `README.md` documentation
+Deliverables:
+- Updated UML + sequence diagrams
+- `.jar` executable
+- Source code (Model, View, Controller, AI)
+- JUnit test suite
+- `README.md`
 
 ## Running Instructions
 
@@ -37,17 +34,26 @@ java -jar Scrabble.jar
 - Rayyan Kashif    101274266
 
 ## Changes Since Previous Deliverable
-- Added `App.java` to implement a graphical interface using Swing.
-- Introduced `ScrabbleController.java` to handle event-driven user interaction.
-- Refactored `Game.java` and related model classes to support MVC separation.
-- Added event-based communication between the View and Model.
-- Implemented JUnit tests for all model logic.
-- Updated UML class and sequence diagrams to reflect MVC structure and new relationships.
+- Implemented blank tiles with user/AI letter assignment.
+- Added complete premium square scoring system.
+- Added AI player with full-board word simulation and scoring evaluation.
+- Refactored `Game` logic for AI integration and premium scoring.
+- Added JUnit tests for scoring, blanks, validation, and AI behaviour.
+- Updated all diagrams to reflect AI logic and new rules.
 
 ## Known Issues
-- Minor layout scaling differences may occur on high-DPI displays.
-- No premium tile or blank tile functionality yet (planned for Milestone 3).
+- Minor UI scaling differences on high-DPI screens.
+- AI computation time increases with very large dictionaries.
 
 ## Next Steps
-- **Milestone 3:** Add premium tiles, blank tiles, and AI player functionality.
 - **Milestone 4:** Implement multi-level undo/redo, save/load, and custom board configuration.
+
+## AI Player Strategy
+The AI evaluates every dictionary word at every board position, horizontally and vertically.  
+For each candidate:
+
+1. Check boundary fit.
+2. Check legality via `Board.isValidPlacement(...)`.
+3. Simulate tile placement.
+4. Score using `Game.analyzeMove(...)` (includes DL/TL/DW/TW and blank tiles).
+5. Track the highest-scoring legal move.
