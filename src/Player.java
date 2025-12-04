@@ -1,11 +1,13 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable {
     public static final int HAND_SIZE = 7;
     protected final String name;
     protected final List<Tile> hand;
     protected int score;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new {@code Player} with the given name.

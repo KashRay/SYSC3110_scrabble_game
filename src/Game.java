@@ -14,7 +14,7 @@ import javax.swing.JOptionPane;
 public class Game implements Serializable {
     private final Board board;
     private final TileBag tileBag;
-    private final Dictionary dictionary;
+    private transient Dictionary dictionary;
     private final List<Player> players;
     private int currentPlayer;
     private ArrayList<Tile> placedTiles;
@@ -149,6 +149,10 @@ public class Game implements Serializable {
     public Player getCurrentPlayer() {
         return players.get(currentPlayer);
     }
+
+    public TileBag getTileBag() { return tileBag; }
+
+    public Board getBoard() { return board; }
 
     /**
      * Moves to the next player's turn in a round-robin fashion.
@@ -589,6 +593,8 @@ public class Game implements Serializable {
         in.close();
 
         loadedGame.views = new ArrayList<>();
+        loadedGame.dictionary = new Dictionary();
+        loadedGame.dictionary.loadFromFile("src/wordlist.txt");
         return loadedGame;
     }
 }

@@ -354,6 +354,49 @@ public class App extends JFrame implements ScrabbleView {
         this.disableHand();
     }
 
+    public void refreshBoard(Game game) {
+        updateTopText(game.getCurrentPlayer().getName() + "'s turn");
+
+        for (int i = 0; i < Board.SIZE * Board.SIZE; i++) {
+            JButton button = squares[i];
+            int x = i / Board.SIZE;
+            int y = i % Board.SIZE;
+
+            Tile tile = game.getBoard().getTile(x,y);
+
+            if (tile != null) {
+                button.setText("" + tile.getLetter());
+                button.setBackground(Color.GREEN);
+            } else {
+                button.setText("_");
+                switch (Board.premiumTiles[x][y]) {
+                    case DL:
+                        button.setBackground(Color.CYAN);
+                        break;
+                    case TL:
+                        button.setBackground(Color.BLUE);
+                        break;
+                    case DW:
+                        button.setBackground(Color.YELLOW);
+                        break;
+                    case TW:
+                        button.setBackground(Color.RED);
+                        break;
+                    default:
+                        button.setBackground(null);
+                        break;
+                }
+            }
+            button.setEnabled(false);
+        }
+        updateHand(game.getCurrentPlayer().getHand());
+        updateScore("" + game.getCurrentPlayer().getScore(), game.getTileBag().size());
+        enableHand();
+        enableExchange();
+        disableBoard();
+        disableDone();
+    }
+
     /**
      * Main entry point for launching the Scrabble application.
      *

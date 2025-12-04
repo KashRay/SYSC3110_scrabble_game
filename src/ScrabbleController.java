@@ -1,5 +1,6 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.*;
 
 /**
  * The ScrabbleController class handles user interactions
@@ -11,7 +12,7 @@ import java.awt.event.ActionListener;
  */
 public class ScrabbleController implements ActionListener{
     private final App app;
-    private final Game game;
+    private Game game;
 
     /**
      * Constructs a new ScrabbleController that manages communication
@@ -106,6 +107,17 @@ public class ScrabbleController implements ActionListener{
              *
              */
             case "S":
+                javax.swing.JFileChooser saveChooser = new javax.swing.JFileChooser();
+                if (saveChooser.showSaveDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) {
+                    java.io.File saveFile = saveChooser.getSelectedFile();
+                    try {
+                        game.saveGame(saveFile);
+                        app.updateTopText("Game Saved!");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        app.updateTopText("Error saving game!");
+                    }
+                }
                 break;
 
             /*
@@ -113,6 +125,20 @@ public class ScrabbleController implements ActionListener{
              *
              */
             case "L":
+                javax.swing.JFileChooser loadChooser = new javax.swing.JFileChooser();
+                if (loadChooser.showOpenDialog(null) == javax.swing.JFileChooser.APPROVE_OPTION) {
+                    java.io.File loadFile = loadChooser.getSelectedFile();
+                    try {
+                        Game loadedGame = Game.loadGame(loadFile);
+                        this.game = loadedGame;
+                        loadedGame.addView(app);
+                        app.refreshBoard(loadedGame);
+                        app.updateTopText("Game Loaded!");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        app.updateTopText("Error loading game!");
+                    }
+                }
                 break;
 
             /*

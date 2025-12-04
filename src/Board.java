@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.Serializable;
 
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
@@ -8,9 +9,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 
-public class Board {
+public class Board implements Serializable {
     public static final int SIZE = 15;
     public static final int CENTER = Board.SIZE / 2;
+    public static final long serialVersionUID = 1L;
     
     public enum tileType {Normal, DL, TL, DW, TW}
     public static tileType[][] premiumTiles = {
