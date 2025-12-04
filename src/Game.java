@@ -1,3 +1,4 @@
+import java.io.*;
 import java.util.*;
 
 import javax.swing.JOptionPane;
@@ -10,17 +11,18 @@ import javax.swing.JOptionPane;
  * Implements a basic MVC (Model-View-Controller) pattern where Game
  * serves as the Model, holding all core game state and logic.
  */
-public class Game {
+public class Game implements Serializable {
     private final Board board;
     private final TileBag tileBag;
     private final Dictionary dictionary;
     private final List<Player> players;
     private int currentPlayer;
-    private static ArrayList<Tile> placedTiles;
-    private final ArrayList<ScrabbleView> views;
+    private ArrayList<Tile> placedTiles;
+    private transient ArrayList<ScrabbleView> views;
     private Tile selectedTile;
     private int endPasses;
     private boolean firstTurn;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new Game instance with a new board, tile bag,
@@ -443,8 +445,8 @@ public class Game {
         }
 
         //Calculate the score
-        ArrayList<Tile> modifiedTiles = new ArrayList<Tile>(placedTiles);
-        for (Tile tile : placedTiles) {
+        ArrayList<Tile> modifiedTiles = new ArrayList<Tile>(tilesToCheck);
+        for (Tile tile : tilesToCheck) {
             switch (Board.premiumTiles[tile.getX()][tile.getY()]) {
                 case DL:    //If tile is on Double Letter space
                     tile.setScore(tile.getScore() * 2);
@@ -573,5 +575,20 @@ public class Game {
             this.removeViewsPlacedTiles();
             this.nextTurn(true);
         }
+    }
+
+    public void saveGame(File file) throws IOException {
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+        out.writeObject(this);
+        out.close();
+    }
+
+    public static Game loadGame(File file) throws IOException, ClassNotFoundException {
+        ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+        Game loadedGame = (Game) in.readObject();
+        in.close();
+
+        loadedGame.views = new ArrayList<>();
+        return loadedGame;
     }
 }
