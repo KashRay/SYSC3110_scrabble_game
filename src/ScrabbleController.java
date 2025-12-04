@@ -120,6 +120,7 @@ public class ScrabbleController implements ActionListener{
              *
              */
             case "I":
+                game.importCustomBoard();
                 break;
 
             default:

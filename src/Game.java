@@ -249,6 +249,11 @@ public class Game {
         }
     }
 
+    public void importCustomBoard() {
+        board.importCustomBoard();
+        this.removeViewsPlacedTiles();
+    }
+
     /**
      * Selects a tile from the player's hand to be placed on the board.
      *

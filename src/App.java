@@ -299,7 +299,7 @@ public class App extends JFrame implements ScrabbleView {
     public void removePlacedTiles() {
         for (int i = 0; i < (Board.SIZE * Board.SIZE); i++) {
             JButton button = squares[i];
-            if (button.getBackground() == Color.MAGENTA) {
+            if (button.getBackground() != Color.GREEN) {
                 button.setText("_");
                 int x = i / Board.SIZE;
                 int y = i % Board.SIZE;

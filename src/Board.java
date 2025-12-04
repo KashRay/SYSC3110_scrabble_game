@@ -1,9 +1,19 @@
+import java.io.File;
+
+import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+
 public class Board {
     public static final int SIZE = 15;
     public static final int CENTER = Board.SIZE / 2;
     
     public enum tileType {Normal, DL, TL, DW, TW}
-    public static final tileType[][] premiumTiles = {
+    public static tileType[][] premiumTiles = {
         {tileType.TW, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.TW}, 
         {tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal}, 
         {tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal}, 
@@ -139,6 +149,39 @@ public class Board {
         }
 
         return firstTurn ? crossesCenter : connects;
+    }
+
+    public void importCustomBoard() {
+        try {
+            File xmlFile = new File(JOptionPane.showInputDialog("Enter the name of the XML file (with the file extension)"));
+
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile);
+
+            doc.getDocumentElement().normalize();
+
+            NodeList rows = doc.getElementsByTagName("row");
+
+            for (int i = 0; i < SIZE; i++) {
+                Element rowElement = (Element) rows.item(i);
+
+                String[] values = rowElement.getTextContent().trim().split("\\s+");
+
+                for (int j = 0; j < SIZE; j++) {
+                    int value = Integer.parseInt(values[j]);
+
+                    switch (value) {
+                        case 1: premiumTiles[i][j] = tileType.DL; break;
+                        case 2: premiumTiles[i][j] = tileType.TL; break;
+                        case 3: premiumTiles[i][j] = tileType.DW; break;
+                        case 4: premiumTiles[i][j] = tileType.TW; break;
+                        default: premiumTiles[i][j] = tileType.Normal;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "ERROR: File not found or file not valid");
+        }
     }
 
     /**
