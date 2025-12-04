@@ -220,7 +220,7 @@ public class App extends JFrame implements ScrabbleView {
      * Updates the game board to show tiles that have been placed.
      *
      * @param placedTiles list of tiles to display
-     * @param validated whether the move has been validated (true = permanent)
+     * @param validated whether the mainWord has been validated (true = permanent)
      */
     public void updateBoard(ArrayList<Tile> placedTiles, boolean validated) {
         JButton currentSquare;
@@ -259,7 +259,7 @@ public class App extends JFrame implements ScrabbleView {
     }
 
     /** 
-    * Prevents the "Done" button from marking the first move as valid. 
+    * Prevents the "Done" button from marking the first mainWord as valid.
     */
     public void disableFirstMove() {
         done.setActionCommand("D false");

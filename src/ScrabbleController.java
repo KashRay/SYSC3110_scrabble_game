@@ -31,7 +31,7 @@ public class ScrabbleController implements ActionListener{
      * 
      * This method parses the ActionCommand of the pressed button
      * to determine what type of action occurred (hand tile selection, board placement,
-     * move validation, or tile exchange) and then updates both the game
+     * mainWord validation, or tile exchange) and then updates both the game
      * and GUI accordingly.
      *
      *
@@ -80,7 +80,7 @@ public class ScrabbleController implements ActionListener{
 
             /*
              * Case "D": The player clicked the "Done" button.
-             * - Validate the current move.
+             * - Validate the current mainWord.
              * - If valid, proceed to the next turn.
              * - If invalid, reset the unvalidated tiles on the board.
              */

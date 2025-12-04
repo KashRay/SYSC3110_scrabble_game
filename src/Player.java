@@ -1,11 +1,15 @@
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class Player {
     public static final int HAND_SIZE = 7;
     protected final String name;
-    protected final List<Tile> hand;
+    protected List<Tile> hand;
     protected int score;
+    protected int turnsTaken;
+    protected List<PlayerMove> recordedMoves;
 
     /**
      * Constructs a new {@code Player} with the given name.
@@ -17,6 +21,8 @@ public class Player {
         this.name = name;
         this.hand = new ArrayList<>();
         this.score = 0;
+        this.turnsTaken = 0;
+        this.recordedMoves = new ArrayList<>();
     }
 
     /**
@@ -47,6 +53,7 @@ public class Player {
         return score;
     }
 
+
     /**
      * Adds a given number of points to the player's total score.
      *
@@ -54,6 +61,21 @@ public class Player {
      */
     public void addScore(int score) {
         this.score += score;
+    }
+
+    /**
+     * Increments the turn counter for this player.
+     */
+    public void incrementTurns() {
+        this.turnsTaken++;
+    }
+
+    /**
+     * Used for endgame statistics.
+     * @return the number of turns taken by the player
+     */
+    public int getTurnsTaken() {
+        return turnsTaken;
     }
 
     /**
@@ -104,6 +126,24 @@ public class Player {
             }
         }
         return null;
+    }
+
+    /**
+     * Adds a word to the created words list.
+     *
+     * @param move the main word created and the total score from that move
+     */
+    public void addMove(PlayerMove move) {
+        recordedMoves.add(move);
+    }
+
+    /**
+     * Used for end game statistics.
+     *
+     * @return the list of moves made throughout a match
+     */
+    public List<PlayerMove> getRecordedMoves() {
+        return recordedMoves;
     }
 
     /**

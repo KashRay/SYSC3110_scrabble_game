@@ -23,13 +23,13 @@ public interface ScrabbleView {
     /**
      * Updates the board display to reflect placed tiles.
      * 
-     * Called after tiles have been placed on the board. If the move has been validated,
+     * Called after tiles have been placed on the board. If the mainWord has been validated,
      * the affected squares may be shown with a permanent color (e.g., green),
      * otherwise temporarily (e.g., yellow).
      * 
      *
      * @param placedTiles a list of Tile objects that were placed on the board
-     * @param validated   true if the move was validated as a legal word;
+     * @param validated   true if the mainWord was validated as a legal word;
      *                    false if still pending validation
      */
     void updateBoard(ArrayList<Tile> placedTiles, boolean validated);
@@ -42,9 +42,9 @@ public interface ScrabbleView {
     void updateHand(List<Tile> hand);
 
     /**
-     * Disables the ability to make the special first move.
+     * Disables the ability to make the special first mainWord.
      * 
-     * Typically used to prevent the player from placing the initial move rules
+     * Typically used to prevent the player from placing the initial mainWord rules
      * after it has already been completed.
      * 
      */
@@ -53,7 +53,7 @@ public interface ScrabbleView {
     /**
      * Removes tiles that were placed on the board but not validated.
      *
-     * Used to reset the board view if an invalid move is detected or
+     * Used to reset the board view if an invalid mainWord is detected or
      * if the player cancels their turn.
      * 
      */
