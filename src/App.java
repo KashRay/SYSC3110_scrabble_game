@@ -122,6 +122,33 @@ public class App extends JFrame implements ScrabbleView {
 
         hand.add(endOptions);
 
+        JMenuBar menuBar = new JMenuBar();
+        
+        JMenu file = new JMenu("File");
+        
+        JMenuItem save = new JMenuItem("Save");
+        save.setActionCommand("S");
+        save.addActionListener(controller);
+        
+        JMenuItem load = new JMenuItem("Load");
+        load.setActionCommand("L");
+        load.addActionListener(controller);
+        
+        file.add(save);
+        file.add(load);
+
+        JMenu edit = new JMenu("Edit");
+
+        JMenuItem importB = new JMenuItem("Import Custom Board");
+        importB.setActionCommand("I");
+        importB.addActionListener(controller);
+
+        edit.add(importB);
+
+        menuBar.add(file);
+        menuBar.add(edit);
+
+        this.setJMenuBar(menuBar);
         this.add(topText);
         this.add(middle);
         this.add(hand);
