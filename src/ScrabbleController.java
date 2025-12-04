@@ -101,6 +101,27 @@ public class ScrabbleController implements ActionListener{
             case "E":
                 game.nextTurn(true);
                 break;
+            /*
+             * Case "S": The player chooses to save the game.
+             *
+             */
+            case "S":
+                break;
+
+            /*
+             * Case "L": The player chooses to load a game from a save file.
+             *
+             */
+            case "L":
+                break;
+
+            /*
+             * Case "I": The player chooses to import a custom game board.
+             *
+             */
+            case "I":
+                break;
+
             default:
                 break;
         }
