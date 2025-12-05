@@ -113,6 +113,15 @@ public class Board implements Serializable {
         return true;
     }
 
+    /**
+     * Determines whether the specified board position has any neighboring tiles.
+     * A neighbor is any non-null tile located directly above, below, to the left,
+     * or to the right of the given (row, col) position.
+     *
+     * @param row the row index of the position being checked
+     * @param col the column index of the position being checked
+     * @return true if at least one adjacent tile exists; false otherwise
+     */
     public boolean hasNeighbor(int row, int col) {
         if (this.getTile(row - 1, col) != null) return true;
         if (this.getTile(row + 1, col) != null) return true;
@@ -121,6 +130,22 @@ public class Board implements Serializable {
         return false;
     }
 
+    /**
+     * Checks whether a word placement on the board is valid according to Scrabble rules.
+     * A valid placement must adhere to the following:
+     * Fit within board boundaries
+     * No conflict with existing tiles (unless matching the same letter)
+     * On the first turn, pass through the center square
+     * On all subsequent turns, connect to existing tiles
+     *
+     *
+     * @param word         The word being placed.
+     * @param row          Starting row position.
+     * @param col          Starting column position.
+     * @param isHorizontal True if the word is placed left-to-right; false if top-to-bottom.
+     * @param firstTurn    True if this is the first move of the game.
+     * @return True if the placement is valid; false otherwise.
+     */
     public boolean isValidPlacement(String word, int row, int col, boolean isHorizontal, boolean firstTurn) {
         boolean connects = false;
         boolean crossesCenter = false;
@@ -153,6 +178,18 @@ public class Board implements Serializable {
         return firstTurn ? crossesCenter : connects;
     }
 
+    /**
+     * Imports a custom Scrabble board layout from an XML file.
+     * The XML file must contain a series of row elements, each containing
+     * space-separated integers describing the premium tile layout.
+     * Tile encoding:
+     * 1 = Double Letter (DL)
+     * 2 = Triple Letter (TL)
+     * 3 = Double Word (DW)
+     * 4 = Triple Word (TW)
+     * Any other value = Normal tile
+     * If the file is missing or invalid, an error message is displayed.
+     */
     public void importCustomBoard() {
         try {
             File xmlFile = new File(JOptionPane.showInputDialog("Enter the name of the XML file (with the file extension)"));
