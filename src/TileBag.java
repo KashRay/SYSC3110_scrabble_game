@@ -142,4 +142,13 @@ public class TileBag implements Serializable {
         in.defaultReadObject();
         this.rand = new Random();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof TileBag) {
+            return this.size() == ((TileBag) o).size();
+        }
+
+        return false;
+    }
 }

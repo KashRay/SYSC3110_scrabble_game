@@ -49,4 +49,13 @@ public class Dictionary {
     public boolean isValidWord(String word) {
         return words.contains(word.toUpperCase());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Dictionary) {
+            return words.equals(((Dictionary) o).getWords());
+        }
+
+        return false;
+    }
 }

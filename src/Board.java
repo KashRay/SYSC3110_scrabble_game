@@ -246,4 +246,18 @@ public class Board implements Serializable {
         }
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Board) {
+            for (int i = 0; i < Board.SIZE; i++) {
+                for (int j = 0; j < Board.SIZE; j++) {
+                    if (board[i][j] == null && ((Board) o).getTile(i, j) != null) return false;
+                    if (board[i][j] != ((Board) o).getTile(i, j)) return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
 }

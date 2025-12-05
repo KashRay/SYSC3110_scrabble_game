@@ -154,17 +154,29 @@ public class Game implements Serializable {
         return players.get(currentPlayer);
     }
 
-    public TileBag getTileBag() { return tileBag; }
+    public Board getBoard() { return this.board; }
 
-    public Board getBoard() { return board; }
+    public TileBag getTileBag() { return this.tileBag; }
+
+    public Dictionary getDictionary() { return this.dictionary; }
+
+    public List<Player> getPlayers() { return this.players; }
+
+    public int getCurrentPlayerNum() { return this.currentPlayer; }
 
     public ArrayList<Tile> getPlacedTiles() { return this.placedTiles; }
 
+    public ArrayList<ScrabbleView> getViews() { return this.views; }
+
     public Tile getSelectedTile() { return this.selectedTile; };
 
-    public Stack<byte[]> getUndoStack() { return this.undoStack; }
+    public int getEndPasses() { return this.endPasses; }
+    
+    public boolean getFirstTurn() { return this.firstTurn; }
 
-    public Stack<byte[]> getRedoStack() { return this.redoStack; }
+    public Stack<byte[]> getUndoStack() { return undoStack; }
+
+    public Stack<byte[]> getRedoStack() { return redoStack; }
 
     /**
      * Moves to the next player's turn in a round-robin fashion.
@@ -705,5 +717,14 @@ public class Game implements Serializable {
         loadedGame.dictionary = new Dictionary();
         loadedGame.dictionary.loadFromFile("src/wordlist.txt");
         return loadedGame;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Game) {
+            return board.equals(((Game) o).getBoard()) && tileBag.equals(((Game) o).getTileBag()) && dictionary.equals(((Game) o).getDictionary()) && players.equals(((Game) o).getPlayers()) && currentPlayer == ((Game) o).getCurrentPlayerNum() && placedTiles.equals(((Game) o).getPlacedTiles()) && selectedTile.equals(((Game) o).getSelectedTile()) && endPasses == ((Game) o).getEndPasses() && (firstTurn == ((Game) o).getFirstTurn());
+        }
+
+        return false;
     }
 }

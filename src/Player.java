@@ -120,4 +120,17 @@ public class Player implements Serializable {
         for (Tile t : hand) sb.append(t).append(" ");
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Player) {
+            for (int i = 0; i < Player.HAND_SIZE; i++) {
+                if (!hand.get(i).equals(((Player) o).getHand().get(i))) return false;
+            }
+
+            return name.equals(((Player) o).getName()) && score == ((Player) o).getScore(); 
+        }
+        
+        return false;
+    }
 }
