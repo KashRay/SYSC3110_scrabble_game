@@ -12,6 +12,7 @@ public class GameTest {
         game = new Game();
         game.addPlayer("Alice");
         game.addPlayer("Bob");
+        board = new Board();
     }
 
     @After
@@ -172,5 +173,76 @@ public class GameTest {
 
         assertNull("AI should not place tiles on occupied center", move);
     }
+    private Board board;
+
+    @Test
+    public void testValidPlacement_FirstTurn_CrossesCenter() {
+        String word = "HELLO";
+        int row = Board.CENTER;
+        int col = Board.CENTER - 2; // word will pass through center
+
+        boolean result = board.isValidPlacement(word, row, col, true, true);
+
+        assertTrue("Word crossing center on first turn should be valid.", result);
+    }
+
+    @Test
+    public void testInvalidPlacement_FirstTurn_DoesNotCrossCenter() {
+        String word = "HELLO";
+        int row = 5;
+        int col = 5;
+
+        boolean result = board.isValidPlacement(word, row, col, true, true);
+
+        assertFalse("First turn placement must cross center.", result);
+    }
+
+    @Test
+    public void testInvalidPlacement_WordRunsOffBoard() {
+        String word = "HELLO";
+        int row = 0;
+        int col = Board.SIZE - 3; // too close to right edge
+
+        boolean result = board.isValidPlacement(word, row, col, true, false);
+
+        assertFalse("Word that exceeds board boundaries should be invalid.", result);
+    }
+
+    @Test
+    public void testInvalidPlacement_ConflictingLetters() {
+        // Place a tile manually to create conflict
+        board.placeTile(7, 7, new Tile('A', 1));
+
+        String word = "HELLO";
+
+        boolean result = board.isValidPlacement(word, 7, 7, true, false);
+
+        assertFalse("Conflict: existing 'A' does not match 'H'.", result);
+    }
+
+    @Test
+    public void testValidPlacement_MatchingExistingLetters() {
+        // Place matching tile
+        board.placeTile(7, 7, new Tile('H', 4));
+
+        String word = "HELLO";
+
+        boolean result = board.isValidPlacement(word, 7, 7, true, false);
+
+        assertTrue("Matching tile at starting location should allow placement.", result);
+    }
+
+    @Test
+    public void testValidPlacement_ConnectsToNeighbor() {
+        // Place tile next to where word will go
+        board.placeTile(8, 7, new Tile('A', 1));
+
+        String word = "HELLO";
+
+        boolean result = board.isValidPlacement(word, 7, 7, true, false);
+
+        assertTrue("Placement touching neighbor should be valid.", result);
+    }
+    
 
 }
