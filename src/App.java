@@ -19,6 +19,8 @@ import java.util.ArrayList;
 public class App extends JFrame implements ScrabbleView {
     Game game;
     ScrabbleController controller;
+    JButton undo;
+    JButton redo;
     JTextArea topText;
     JButton[] squares;
     JTextArea scoreField;
@@ -43,6 +45,22 @@ public class App extends JFrame implements ScrabbleView {
         // Initialize controller and link it to this view and the model
         controller = new ScrabbleController(this, game);
 
+        JPanel undoRedo = new JPanel();
+        undoRedo.setLayout(new FlowLayout());
+
+        undo = new JButton("Undo");
+        undo.setActionCommand("U");
+        undo.addActionListener(controller);
+        undo.setEnabled(false);
+
+        redo = new JButton("Redo");
+        redo.setActionCommand("R");
+        redo.addActionListener(controller);
+        redo.setEnabled(false);
+
+        undoRedo.add(undo);
+        undoRedo.add(redo);
+        
         topText = new JTextArea("SCRABBLE!");
         
         JButton button;
@@ -149,6 +167,7 @@ public class App extends JFrame implements ScrabbleView {
         menuBar.add(edit);
 
         this.setJMenuBar(menuBar);
+        this.add(undoRedo);
         this.add(topText);
         this.add(middle);
         this.add(hand);
@@ -352,6 +371,24 @@ public class App extends JFrame implements ScrabbleView {
     public void endGame() {
         this.disableBoard();
         this.disableHand();
+    }
+
+    /**
+     * Toggles the state of the undo button.
+     * 
+     * @param toggle  whether the undo button is enabled or disabled.
+     */
+    public void toggleUndo(boolean toggle) {
+        undo.setEnabled(toggle);
+    }
+
+    /**
+     * Toggles the state of the redo button.
+     * 
+     * @param toggle  whether the redo button is enabled or disabled.
+     */
+    public void toggleRedo(boolean toggle) {
+        redo.setEnabled(toggle);
     }
 
     public void refreshBoard(Game game) {

@@ -41,6 +41,19 @@ public class ScrabbleController implements ActionListener{
     public void actionPerformed(ActionEvent event) {
         // Split the action command string into its parts
         String[] command = event.getActionCommand().split(" ");
+
+        //Store game state in undo stack if not undoing or redoing
+        if (!(command[0].equals("U") || command[0].equals("R"))) {
+            try {
+                if (game.getUndoStack().isEmpty()) app.toggleUndo(true);
+                game.storeState(game.getUndoStack());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                System.out.println("Failed to store in undo stack.");
+            }
+        }
+        
         switch (command[0]) {
 
             /*
@@ -64,6 +77,7 @@ public class ScrabbleController implements ActionListener{
                     letter = command[2].charAt(0);
                 }
                 game.selectTile(letter);
+                game.clearRedoStack();
                 break;
 
             /*
@@ -77,6 +91,7 @@ public class ScrabbleController implements ActionListener{
                     app.disableBoard();
                     app.enableDone();
                 }
+                game.clearRedoStack();
                 break;
 
             /*
@@ -93,6 +108,7 @@ public class ScrabbleController implements ActionListener{
                     game.removeViewsPlacedTiles();
                 }
                 app.enableExchange();
+                game.clearRedoStack();
                 break; 
                 
             /*
@@ -101,6 +117,7 @@ public class ScrabbleController implements ActionListener{
              */
             case "E":
                 game.nextTurn(true);
+                game.clearRedoStack();
                 break;
             /*
              * Case "S": The player chooses to save the game.
@@ -118,6 +135,7 @@ public class ScrabbleController implements ActionListener{
                         app.updateTopText("Error saving game!");
                     }
                 }
+                game.clearRedoStack();
                 break;
 
             /*
@@ -147,6 +165,43 @@ public class ScrabbleController implements ActionListener{
              */
             case "I":
                 game.importCustomBoard();
+                game.clearRedoStack();
+                break;
+
+            /*
+             * Case "U": The player chooses to undo to a previous game state.
+             *
+             */
+            case "U":
+                try {
+                    Game loadedGame = game.undo();
+                    this.game = loadedGame;
+                    loadedGame.addView(app);
+                    app.refreshBoard(loadedGame);
+                    app.updateTopText("Undo'd Game");
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Failed to store in undo stack.");
+                }
+                break;
+            
+            /*
+             * Case "R": The player chooses to redo back to the former game state.
+             *
+             */
+            case "R":
+                try {
+                    Game loadedGame = game.redo();
+                    this.game = loadedGame;
+                    loadedGame.addView(app);
+                    app.refreshBoard(loadedGame);
+                    app.updateTopText("Redo'd Game");
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println("Failed to store in undo stack.");
+                }
                 break;
 
             default:

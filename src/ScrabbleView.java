@@ -84,4 +84,18 @@ public interface ScrabbleView {
      *
      */
     void endGame();
+
+    /**
+     * Toggles the state of the undo button.
+     * 
+     * @param toggle  whether the undo button is enabled or disabled.
+     */
+    void toggleUndo(boolean toggle);
+
+    /**
+     * Toggles the state of the redo button.
+     * 
+     * @param toggle  whether the redo button is enabled or disabled.
+     */
+    void toggleRedo(boolean toggle);
 }

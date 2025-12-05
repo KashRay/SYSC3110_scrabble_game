@@ -23,6 +23,8 @@ public class Game implements Serializable {
     private int endPasses;
     private boolean firstTurn;
     private static final long serialVersionUID = 1L;
+    private static Stack<byte[]> undoStack;
+    private static Stack<byte[]> redoStack;
 
     /**
      * Constructs a new Game instance with a new board, tile bag,
@@ -40,6 +42,8 @@ public class Game implements Serializable {
         selectedTile = null;
         endPasses = 0;
         firstTurn = true;
+        undoStack = new Stack<byte[]>();
+        redoStack = new Stack<byte[]>();
     }
 
     /**
@@ -252,6 +256,28 @@ public class Game implements Serializable {
 
         for (ScrabbleView view : views) {
             view.updateScore(scoreText.toString(), tileBag.size());
+        }
+    }
+
+    /**
+     * Updated the undo button in all registered views.
+     * 
+     * @param toggle  whether the undo button is enabled or disabled.
+     */
+    public void updateViewsUndo(boolean toggle) {
+        for (ScrabbleView view : views) {
+            view.toggleUndo(toggle);
+        }
+    }
+
+    /**
+     * Updated the redo button in all registered views.
+     * 
+     * @param toggle  whether the redo button is enabled or disabled.
+     */
+    public void updateViewsRedo(boolean toggle) {
+        for (ScrabbleView view : views) {
+            view.toggleRedo(toggle);
         }
     }
 
@@ -578,6 +604,81 @@ public class Game implements Serializable {
         else {
             this.removeViewsPlacedTiles();
             this.nextTurn(true);
+        }
+    }
+
+    public Stack<byte[]> getUndoStack() {
+        return this.undoStack;
+    }
+
+    public Stack<byte[]> getRedoStack() {
+        return this.redoStack;
+    }
+
+    public void storeState(Stack<byte[]> stack) throws IOException {
+        System.out.println("Storing State:");
+        if (stack.equals(undoStack)) {
+            System.out.println("UndO");
+        }
+        else {
+            System.out.println("Redo");
+        }
+        System.out.println(stack.size());
+        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+        ObjectOutputStream state = new ObjectOutputStream(byteStream);
+        state.writeObject(this);
+        stack.push(byteStream.toByteArray());
+        System.out.println(stack.size());
+    }
+
+    public Game undo() throws IOException, ClassNotFoundException {
+        try {
+            if (redoStack.isEmpty()) this.updateViewsRedo(true);
+            this.storeState(redoStack);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to store in redo stack.");
+        }
+
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(undoStack.pop()));
+
+        if (undoStack.isEmpty()) this.updateViewsUndo(false);
+        
+        Game loadedGame = (Game) in.readObject();
+
+        loadedGame.views = new ArrayList<>();
+        loadedGame.dictionary = new Dictionary();
+        loadedGame.dictionary.loadFromFile("src/wordlist.txt");
+        return loadedGame;
+    }
+
+    public Game redo() throws IOException, ClassNotFoundException {
+        try {
+            if (undoStack.isEmpty()) this.updateViewsUndo(true);
+            this.storeState(undoStack);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Failed to store in undo stack.");
+        }
+
+        ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(redoStack.pop()));
+        
+        if (redoStack.isEmpty()) this.updateViewsRedo(false);
+        
+        Game loadedGame = (Game) in.readObject();
+
+        loadedGame.views = new ArrayList<>();
+        loadedGame.dictionary = new Dictionary();
+        loadedGame.dictionary.loadFromFile("src/wordlist.txt");
+        return loadedGame;
+    }
+
+    public void clearRedoStack() {
+        if (!redoStack.isEmpty()) {
+            redoStack.clear();
+            this.updateViewsRedo(false);
         }
     }
 
