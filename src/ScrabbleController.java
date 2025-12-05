@@ -150,7 +150,11 @@ public class ScrabbleController implements ActionListener{
                         Game loadedGame = Game.loadGame(loadFile);
                         this.game = loadedGame;
                         loadedGame.addView(app);
+                        loadedGame.clearUndoStack();
+                        loadedGame.clearRedoStack();
                         app.refreshBoard(loadedGame);
+                        app.toggleUndo(false);
+                        app.toggleRedo(false);
                         app.updateTopText("Game Loaded!");
                     } catch (Exception e) {
                         e.printStackTrace();

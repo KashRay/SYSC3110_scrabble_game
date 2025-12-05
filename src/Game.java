@@ -158,6 +158,14 @@ public class Game implements Serializable {
 
     public Board getBoard() { return board; }
 
+    public ArrayList<Tile> getPlacedTiles() { return this.placedTiles; }
+
+    public Tile getSelectedTile() { return this.selectedTile; };
+
+    public Stack<byte[]> getUndoStack() { return this.undoStack; }
+
+    public Stack<byte[]> getRedoStack() { return this.redoStack; }
+
     /**
      * Moves to the next player's turn in a round-robin fashion.
      */
@@ -321,6 +329,7 @@ public class Game implements Serializable {
                 placedTiles.add(selectedTile);
                 this.updateBoard(false);
                 this.updateViewsTopText(this.getCurrentPlayer().getName() + " placed " + this.selectedTile.getLetter() + " at (" + x + "," + y + ").");
+                this.selectedTile = null;
                 return true;
             } else {
                 if (this.selectedTile.getScore() == 0) {
@@ -607,14 +616,6 @@ public class Game implements Serializable {
         }
     }
 
-    public Stack<byte[]> getUndoStack() {
-        return this.undoStack;
-    }
-
-    public Stack<byte[]> getRedoStack() {
-        return this.redoStack;
-    }
-
     public void storeState(Stack<byte[]> stack) throws IOException {
         System.out.println("Storing State:");
         if (stack.equals(undoStack)) {
@@ -673,6 +674,13 @@ public class Game implements Serializable {
         loadedGame.dictionary = new Dictionary();
         loadedGame.dictionary.loadFromFile("src/wordlist.txt");
         return loadedGame;
+    }
+
+    public void clearUndoStack() {
+        if (!undoStack.isEmpty()) {
+            undoStack.clear();
+            this.updateViewsUndo(false);
+        }
     }
 
     public void clearRedoStack() {

@@ -401,10 +401,19 @@ public class App extends JFrame implements ScrabbleView {
 
             Tile tile = game.getBoard().getTile(x,y);
 
+            Board board = game.getBoard();
+            ArrayList<Tile> placed = game.getPlacedTiles();
+
             if (tile != null) {
                 button.setText("" + tile.getLetter());
-                button.setBackground(Color.GREEN);
-            } else {
+
+                if (placed.contains(board.getTile(x, y))) {
+                    button.setBackground(Color.MAGENTA);
+                }
+                else {
+                    button.setBackground(Color.GREEN);
+                }
+                } else {
                 button.setText("_");
                 switch (Board.premiumTiles[x][y]) {
                     case DL:
@@ -426,12 +435,28 @@ public class App extends JFrame implements ScrabbleView {
             }
             button.setEnabled(false);
         }
+
         updateHand(game.getCurrentPlayer().getHand());
         updateScore("" + game.getCurrentPlayer().getScore(), game.getTileBag().size());
-        enableHand();
-        enableExchange();
-        disableBoard();
-        disableDone();
+
+        if (game.getSelectedTile() == null) {
+            enableHand();
+            disableBoard();
+            if (game.getPlacedTiles().isEmpty()) {
+                enableExchange();
+                disableDone();
+            }
+            else {
+                disableExchange();
+                enableDone();
+            }
+        }
+        else {
+            disableHand();
+            enableBoard();
+            disableDone();
+            disableExchange();
+        }
     }
 
     /**
