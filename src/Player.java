@@ -1,15 +1,17 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-public class Player {
+public class Player implements Serializable {
     public static final int HAND_SIZE = 7;
     protected final String name;
     protected List<Tile> hand;
     protected int score;
     protected int turnsTaken;
     protected List<PlayerMove> recordedMoves;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new {@code Player} with the given name.
@@ -158,4 +160,23 @@ public class Player {
         for (Tile t : hand) sb.append(t).append(" ");
         return sb.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Player)) return false;
+
+        Player other = (Player) o;
+
+        if (this.hand.size() < Player.HAND_SIZE ||
+                other.getHand().size() < Player.HAND_SIZE) {
+            return false;
+        }
+
+        for (int i = 0; i < Player.HAND_SIZE; i++) {
+            if (!this.hand.get(i).equals(other.getHand().get(i))) return false;
+        }
+
+        return this.name.equals(other.getName()) && this.score == other.getScore();
+    }
+
 }

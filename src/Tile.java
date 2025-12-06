@@ -1,8 +1,11 @@
-public class Tile {
+import java.io.Serializable;
+
+public class Tile implements Serializable {
     private char letter;
     private int score;
     private int x;
     private int y;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new Tile with the specified letter and score.

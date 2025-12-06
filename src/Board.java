@@ -1,9 +1,21 @@
-public class Board {
+import java.io.File;
+import java.io.Serializable;
+
+import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+
+public class Board implements Serializable {
     public static final int SIZE = 15;
     public static final int CENTER = Board.SIZE / 2;
+    public static final long serialVersionUID = 1L;
     
     public enum tileType {Normal, DL, TL, DW, TW}
-    public static final tileType[][] premiumTiles = {
+    public static tileType[][] premiumTiles = {
         {tileType.TW, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.TW}, 
         {tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.TL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal}, 
         {tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DL, tileType.Normal, tileType.DL, tileType.Normal, tileType.Normal, tileType.Normal, tileType.DW, tileType.Normal, tileType.Normal}, 
@@ -101,6 +113,15 @@ public class Board {
         return true;
     }
 
+    /**
+     * Determines whether the specified board position has any neighboring tiles.
+     * A neighbor is any non-null tile located directly above, below, to the left,
+     * or to the right of the given (row, col) position.
+     *
+     * @param row the row index of the position being checked
+     * @param col the column index of the position being checked
+     * @return true if at least one adjacent tile exists; false otherwise
+     */
     public boolean hasNeighbor(int row, int col) {
         if (this.getTile(row - 1, col) != null) return true;
         if (this.getTile(row + 1, col) != null) return true;
@@ -109,6 +130,22 @@ public class Board {
         return false;
     }
 
+    /**
+     * Checks whether a word placement on the board is valid according to Scrabble rules.
+     * A valid placement must adhere to the following:
+     * Fit within board boundaries
+     * No conflict with existing tiles (unless matching the same letter)
+     * On the first turn, pass through the center square
+     * On all subsequent turns, connect to existing tiles
+     *
+     *
+     * @param word         The word being placed.
+     * @param row          Starting row position.
+     * @param col          Starting column position.
+     * @param isHorizontal True if the word is placed left-to-right; false if top-to-bottom.
+     * @param firstTurn    True if this is the first move of the game.
+     * @return True if the placement is valid; false otherwise.
+     */
     public boolean isValidPlacement(String word, int row, int col, boolean isHorizontal, boolean firstTurn) {
         boolean connects = false;
         boolean crossesCenter = false;
@@ -142,6 +179,51 @@ public class Board {
     }
 
     /**
+     * Imports a custom Scrabble board layout from an XML file.
+     * The XML file must contain a series of row elements, each containing
+     * space-separated integers describing the premium tile layout.
+     * Tile encoding:
+     * 1 = Double Letter (DL)
+     * 2 = Triple Letter (TL)
+     * 3 = Double Word (DW)
+     * 4 = Triple Word (TW)
+     * Any other value = Normal tile
+     * If the file is missing or invalid, an error message is displayed.
+     */
+    public void importCustomBoard() {
+        try {
+            File xmlFile = new File(JOptionPane.showInputDialog("Enter the name of the XML file (with the file extension)"));
+
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlFile);
+
+            doc.getDocumentElement().normalize();
+
+            NodeList rows = doc.getElementsByTagName("row");
+
+            for (int i = 0; i < SIZE; i++) {
+                Element rowElement = (Element) rows.item(i);
+
+                String[] values = rowElement.getTextContent().trim().split("\\s+");
+
+                for (int j = 0; j < SIZE; j++) {
+                    int value = Integer.parseInt(values[j]);
+
+                    switch (value) {
+                        case 1: premiumTiles[i][j] = tileType.DL; break;
+                        case 2: premiumTiles[i][j] = tileType.TL; break;
+                        case 3: premiumTiles[i][j] = tileType.DW; break;
+                        case 4: premiumTiles[i][j] = tileType.TW; break;
+                        default: premiumTiles[i][j] = tileType.Normal;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "ERROR: File not found or file not valid");
+        }
+    }
+
+    /**
      * Returns a visual representation of the current board state.
      * <p>
      * Each tile is displayed using its letter, and empty cells are marked with '--'.
@@ -163,5 +245,19 @@ public class Board {
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Board) {
+            for (int i = 0; i < Board.SIZE; i++) {
+                for (int j = 0; j < Board.SIZE; j++) {
+                    if (board[i][j] == null && ((Board) o).getTile(i, j) != null) return false;
+                    if (board[i][j] != ((Board) o).getTile(i, j)) return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

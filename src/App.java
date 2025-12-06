@@ -19,6 +19,8 @@ import java.util.ArrayList;
 public class App extends JFrame implements ScrabbleView {
     Game game;
     ScrabbleController controller;
+    JButton undo;
+    JButton redo;
     JTextArea topText;
     JButton[] squares;
     JTextArea scoreField;
@@ -43,6 +45,22 @@ public class App extends JFrame implements ScrabbleView {
         // Initialize controller and link it to this view and the model
         controller = new ScrabbleController(this, game);
 
+        JPanel undoRedo = new JPanel();
+        undoRedo.setLayout(new FlowLayout());
+
+        undo = new JButton("Undo");
+        undo.setActionCommand("U");
+        undo.addActionListener(controller);
+        undo.setEnabled(false);
+
+        redo = new JButton("Redo");
+        redo.setActionCommand("R");
+        redo.addActionListener(controller);
+        redo.setEnabled(false);
+
+        undoRedo.add(undo);
+        undoRedo.add(redo);
+        
         topText = new JTextArea("SCRABBLE!");
         
         JButton button;
@@ -122,6 +140,34 @@ public class App extends JFrame implements ScrabbleView {
 
         hand.add(endOptions);
 
+        JMenuBar menuBar = new JMenuBar();
+        
+        JMenu file = new JMenu("File");
+        
+        JMenuItem save = new JMenuItem("Save");
+        save.setActionCommand("S");
+        save.addActionListener(controller);
+        
+        JMenuItem load = new JMenuItem("Load");
+        load.setActionCommand("L");
+        load.addActionListener(controller);
+        
+        file.add(save);
+        file.add(load);
+
+        JMenu edit = new JMenu("Edit");
+
+        JMenuItem importB = new JMenuItem("Import Custom Board");
+        importB.setActionCommand("I");
+        importB.addActionListener(controller);
+
+        edit.add(importB);
+
+        menuBar.add(file);
+        menuBar.add(edit);
+
+        this.setJMenuBar(menuBar);
+        this.add(undoRedo);
         this.add(topText);
         this.add(middle);
         this.add(hand);
@@ -272,7 +318,7 @@ public class App extends JFrame implements ScrabbleView {
     public void removePlacedTiles() {
         for (int i = 0; i < (Board.SIZE * Board.SIZE); i++) {
             JButton button = squares[i];
-            if (button.getBackground() == Color.MAGENTA) {
+            if (button.getBackground() != Color.GREEN) {
                 button.setText("_");
                 int x = i / Board.SIZE;
                 int y = i % Board.SIZE;
@@ -325,6 +371,92 @@ public class App extends JFrame implements ScrabbleView {
     public void endGame() {
         this.disableBoard();
         this.disableHand();
+    }
+
+    /**
+     * Toggles the state of the undo button.
+     * 
+     * @param toggle  whether the undo button is enabled or disabled.
+     */
+    public void toggleUndo(boolean toggle) {
+        undo.setEnabled(toggle);
+    }
+
+    /**
+     * Toggles the state of the redo button.
+     * 
+     * @param toggle  whether the redo button is enabled or disabled.
+     */
+    public void toggleRedo(boolean toggle) {
+        redo.setEnabled(toggle);
+    }
+
+    public void refreshBoard(Game game) {
+        updateTopText(game.getCurrentPlayer().getName() + "'s turn");
+
+        for (int i = 0; i < Board.SIZE * Board.SIZE; i++) {
+            JButton button = squares[i];
+            int x = i / Board.SIZE;
+            int y = i % Board.SIZE;
+
+            Tile tile = game.getBoard().getTile(x,y);
+
+            Board board = game.getBoard();
+            ArrayList<Tile> placed = game.getPlacedTiles();
+
+            if (tile != null) {
+                button.setText("" + tile.getLetter());
+
+                if (placed.contains(board.getTile(x, y))) {
+                    button.setBackground(Color.MAGENTA);
+                }
+                else {
+                    button.setBackground(Color.GREEN);
+                }
+                } else {
+                button.setText("_");
+                switch (Board.premiumTiles[x][y]) {
+                    case DL:
+                        button.setBackground(Color.CYAN);
+                        break;
+                    case TL:
+                        button.setBackground(Color.BLUE);
+                        break;
+                    case DW:
+                        button.setBackground(Color.YELLOW);
+                        break;
+                    case TW:
+                        button.setBackground(Color.RED);
+                        break;
+                    default:
+                        button.setBackground(null);
+                        break;
+                }
+            }
+            button.setEnabled(false);
+        }
+
+        updateHand(game.getCurrentPlayer().getHand());
+        updateScore("" + game.getCurrentPlayer().getScore(), game.getTileBag().size());
+
+        if (game.getSelectedTile() == null) {
+            enableHand();
+            disableBoard();
+            if (game.getPlacedTiles().isEmpty()) {
+                enableExchange();
+                disableDone();
+            }
+            else {
+                disableExchange();
+                enableDone();
+            }
+        }
+        else {
+            disableHand();
+            enableBoard();
+            disableDone();
+            disableExchange();
+        }
     }
 
     /**

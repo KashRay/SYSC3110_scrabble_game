@@ -1,3 +1,6 @@
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -11,9 +14,11 @@ import java.util.*;
  * This class encapsulates tile management logic so that the Game
  * class can easily access and manipulate tiles without manually tracking their distribution.
  */
-public class TileBag {
+public class TileBag implements Serializable {
+
     private final List<Tile> tiles;
-    private final Random rand;
+    private transient Random rand;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Constructs a new TileBag and initializes it with
@@ -131,5 +136,19 @@ public class TileBag {
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        this.rand = new Random();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof TileBag) {
+            return this.size() == ((TileBag) o).size();
+        }
+
+        return false;
     }
 }
