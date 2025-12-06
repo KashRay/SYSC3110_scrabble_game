@@ -123,14 +123,20 @@ public class Player implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Player) {
-            for (int i = 0; i < Player.HAND_SIZE; i++) {
-                if (!hand.get(i).equals(((Player) o).getHand().get(i))) return false;
-            }
+        if (!(o instanceof Player)) return false;
 
-            return name.equals(((Player) o).getName()) && score == ((Player) o).getScore(); 
+        Player other = (Player) o;
+
+        if (this.hand.size() < Player.HAND_SIZE ||
+                other.getHand().size() < Player.HAND_SIZE) {
+            return false;
         }
-        
-        return false;
+
+        for (int i = 0; i < Player.HAND_SIZE; i++) {
+            if (!this.hand.get(i).equals(other.getHand().get(i))) return false;
+        }
+
+        return this.name.equals(other.getName()) && this.score == other.getScore();
     }
+
 }

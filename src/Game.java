@@ -628,6 +628,17 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Serializes the current game state and pushes it onto the specified stack.
+     * This method is used internally by the undo/redo system to capture snapshots
+     * of the game at various points in time. The Game object is fully serialized
+     * into a byte array and stored so that it can later be restored via
+     * undo() or redo().
+     *
+     * @param stack the stack onto which the serialized game state should be pushed.
+     *              Typically either the undoStack or redoStack.
+     * @throws IOException if an I/O error occurs during serialization.
+     */
     public void storeState(Stack<byte[]> stack) throws IOException {
         System.out.println("Storing State:");
         if (stack.equals(undoStack)) {
@@ -644,6 +655,19 @@ public class Game implements Serializable {
         System.out.println(stack.size());
     }
 
+    /**
+     * Reverts the game to the most recently stored previous state.
+     * The current state is first saved onto the redo stack, allowing the user
+     * to reapply the undone action using redo(). The most recent
+     * serialized state from the undo stack is then deserialized and returned
+     * as a new Game instance.
+     * After loading, the new game instance reinitializes transient fields such as
+     * the list of views and the dictionary.
+     *
+     * @return a new Game object representing the previous state.
+     * @throws IOException if an I/O error occurs during deserialization.
+     * @throws ClassNotFoundException if the serialized class definition cannot be found.
+     */
     public Game undo() throws IOException, ClassNotFoundException {
         try {
             if (redoStack.isEmpty()) this.updateViewsRedo(true);
@@ -666,6 +690,19 @@ public class Game implements Serializable {
         return loadedGame;
     }
 
+    /**
+     * Reapplies the most recently undone operation by restoring a state stored in
+     * the redo stack.
+     * The current state is first pushed onto the undo stack, enabling the user to
+     * undo the redo if necessary. The method then restores the most recent redo
+     * state by deserializing it and returning a new Game instance.
+     * After loading, the returned instance resets transient fields such as the
+     * dictionary and the list of views.
+     *
+     * @return a new Game object representing the redone state.
+     * @throws IOException if an I/O error occurs during deserialization.
+     * @throws ClassNotFoundException if the serialized class definition cannot be found.
+     */
     public Game redo() throws IOException, ClassNotFoundException {
         try {
             if (undoStack.isEmpty()) this.updateViewsUndo(true);
@@ -688,6 +725,11 @@ public class Game implements Serializable {
         return loadedGame;
     }
 
+    /**
+     * Removes all stored undo history from the undo stack.
+     * If the stack is not empty, it is cleared and the UI is notified
+     * via updateViewsUndo(false) that undo is no longer available.
+     */
     public void clearUndoStack() {
         if (!undoStack.isEmpty()) {
             undoStack.clear();
@@ -695,6 +737,11 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Removes all stored redo history from the redo stack.
+     * If the stack is not empty, it is cleared and the UI is notified
+     * via updateViewsRedo(false) that redo is no longer available.
+     */
     public void clearRedoStack() {
         if (!redoStack.isEmpty()) {
             redoStack.clear();
@@ -702,12 +749,31 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Saves the current game state to a file using Java serialization.
+     * The state is written exactly as stored in memory, allowing it to be
+     * restored later through loadGame(File).
+     *
+     * @param file the file to which the game state will be written.
+     * @throws IOException if an error occurs while writing to the file.
+     */
     public void saveGame(File file) throws IOException {
         ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
         out.writeObject(this);
         out.close();
     }
 
+    /**
+     * Loads a previously saved game state from the specified file.
+     * After the serialized object is deserialized, transient fields such as the
+     * list of views and the dictionary are reinitialized to ensure proper runtime
+     * behavior.
+     *
+     * @param file the file containing a previously saved game state.
+     * @return a new Game instance reconstructed from the file.
+     * @throws IOException if an error occurs while reading the file.
+     * @throws ClassNotFoundException if the serialized class cannot be found.
+     */
     public static Game loadGame(File file) throws IOException, ClassNotFoundException {
         ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
         Game loadedGame = (Game) in.readObject();
@@ -719,12 +785,33 @@ public class Game implements Serializable {
         return loadedGame;
     }
 
+    /**
+     * Compares this game instance with another object for logical equality.
+     * Two games are considered equal if all core game components—such as the
+     * board, tile bag, dictionary, player list, current turn index, placed tiles,
+     * and selected tile—are equivalent. Simple primitive fields such as
+     * endPasses and firstTurn must also match exactly.
+     *
+     * @param o the object to compare with this game.
+     * @return true if the objects represent the same game state;
+     * false otherwise.
+     */
     @Override
     public boolean equals(Object o) {
-        if (o instanceof Game) {
-            return board.equals(((Game) o).getBoard()) && tileBag.equals(((Game) o).getTileBag()) && dictionary.equals(((Game) o).getDictionary()) && players.equals(((Game) o).getPlayers()) && currentPlayer == ((Game) o).getCurrentPlayerNum() && placedTiles.equals(((Game) o).getPlacedTiles()) && selectedTile.equals(((Game) o).getSelectedTile()) && endPasses == ((Game) o).getEndPasses() && (firstTurn == ((Game) o).getFirstTurn());
-        }
+        if (this == o) return true;
+        if (!(o instanceof Game)) return false;
 
-        return false;
+        Game other = (Game) o;
+
+        return Objects.equals(board, other.getBoard()) &&
+                Objects.equals(tileBag, other.getTileBag()) &&
+                Objects.equals(dictionary, other.getDictionary()) &&
+                Objects.equals(players, other.getPlayers()) &&
+                currentPlayer == other.getCurrentPlayerNum() &&
+                Objects.equals(placedTiles, other.getPlacedTiles()) &&
+                Objects.equals(selectedTile, other.getSelectedTile()) &&
+                endPasses == other.getEndPasses() &&
+                firstTurn == other.getFirstTurn();
     }
+
 }
