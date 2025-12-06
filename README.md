@@ -1,59 +1,144 @@
 # SYSC 3110 Group 15 Scrabble Project
 
 ## Deliverable Breakdown
-Milestone 3 extends our full MVC-based Scrabble implementation by adding **blank tiles**, **premium squares**, **complete AI gameplay**, and **comprehensive JUnit testing**.
+This milestone introduces multi-level undo/redo, full game serialization/deserialization, and custom board importing to our complete MVC Scrabble implementation.
 
-This milestone includes:
-- **Model:** (`Game`, `Board`, `Player`, `AIPlayer`, `Tile`, `TileBag`, `Dictionary`) supporting premium squares, blank tiles, scoring rules, AI turns, and move validation.
-- **View:** (`App`) Swing-based graphical interface for board interaction, tile selection, scoring display, and turn updates.
-- **Controller:** (`ScrabbleController`) event-driven communication between UI and game logic.
-- **Blank Tiles:** Score 0; player/AI assigns a letter when played.
-- **Premium Squares:** Full 15×15 Scrabble layout (DL, TL, DW, TW) with correct word/letter multiplier logic.
-- **AI Player:** Generates and evaluates all legal moves, choosing the **highest-scoring valid move** based on full board simulation.
-- **Dictionary:** File-based loading and validation of all words used by the player and AI.
-- **Testing:** JUnit tests covering move validation, scoring, dictionary loading, blank tile rules, premium squares, and AI legality.
-- **Documentation:** UML class diagram and sequence diagrams fully updated to reflect Milestone 3 behaviour.
+This milestone also includes:
 
-Deliverables:
-- Updated UML + sequence diagrams
+### Model
+`Game`, `Board`, `Player`, `AIPlayer`, `Tile`, `TileBag`, `Dictionary`, `Move`
+- Full Scrabble rule enforcement
+- Premium squares (DL, TL, DW, TW)
+- Blank tile support
+- AI word generation and scoring
+- Multi-level undo/redo using serialized snapshots of the `Game` object
+- Save/load functionality through Java Serialization
+- Custom board loading via XML files
+- Updated equality checks to ensure structural consistency after serialization
+
+### View
+`App`
+- Swing-based GUI for full board interaction
+- Dynamic square colouring (premium, placed, validated)
+- Player hand display
+- Scoreboard and tile-bag tracking
+- Buttons for Undo, Redo, Save, Load, Exchange/Pass, and Custom Board Import
+
+### Controller
+`ScrabbleController`
+- Event-driven mapping of UI inputs to model actions
+- State preservation before moves for undo/redo
+- Integration of save/load dialogs
+- Custom board import handling
+
+### Undo / Redo System
+- Implemented using two stacks of serialized `Game` objects
+- Supports multiple consecutive undo/redo operations
+- View buttons enable/disable automatically based on stack state
+
+### Save / Load System
+- Serializes only model components (views excluded)
+- Dictionary automatically reloaded after deserialization
+- Ensures full restoration of board, player hands, scores, tile bag, and turn state
+
+### Custom Boards
+- Supports XML-based premium tile layouts
+- Users can load alternative Scrabble board configurations at runtime
+
+### AI Player
+- Evaluates all possible placements of all dictionary words
+- Simulates tile usage (including blanks) and calls `Game.analyzeMove(...)`
+- Chooses the highest-scoring valid move
+
+### Dictionary
+- File-based loading of wordlist (unchanged from previous milestone)
+- Used by both human and AI players
+
+### Testing
+- Undo/redo stack logic
+- Serialization/deserialization correctness
+- Custom board import integrity
+
+### Documentation Deliverables
+- Updated UML class diagram (reflecting serialization, undo/redo, new methods)
+- Sequence diagrams for Undo and Load Game
+- Explanation of data structure updates
 - `.jar` executable
-- Source code (Model, View, Controller, AI)
+- Source code
 - JUnit test suite
 - `README.md`
+
+---
 
 ## Running Instructions
 
 To run the program, open a terminal and enter:
-```bash
-java -jar Scrabble.jar
+
+```bash  
+java -jar Scrabble.jar  
 ```
+
+---
+
 ## Authors
 - Abdullah Khan    101305235
 - Adrian Joaquin   101226876
 - Ismael Ouadria   101284947
 - Rayyan Kashif    101274266
 
+---
+
 ## Changes Since Previous Deliverable
-- Implemented blank tiles with user/AI letter assignment.
-- Added complete premium square scoring system.
-- Added AI player with full-board word simulation and scoring evaluation.
-- Refactored `Game` logic for AI integration and premium scoring.
-- Added JUnit tests for scoring, blanks, validation, and AI behaviour.
-- Updated all diagrams to reflect AI logic and new rules.
+
+### New Features
+- Implemented multi-level undo/redo using serialized game snapshots
+- Added Save Game and Load Game functionality
+- Added Custom Board Import (XML-based premium tile layouts)
+
+### Model Enhancements
+- Added `undoStack` and `redoStack` to `Game`
+- Added serialization methods:
+    - `saveGame(File)`
+    - `static loadGame(File)`
+    - `storeState(Stack<byte[]>)`
+    - `undo() / redo()`
+- Rebuilt `equals(...)` methods for consistent state comparison after loading
+- Added board import support to `Board`
+
+### Controller Updates
+- Added command handling for Save, Load, Undo, Redo, Import Board
+- Ensured redo stack is cleared appropriately after player actions
+
+### View Updates
+- Added Undo/Redo buttons and logic
+- Added Save/Load menu items
+- Added custom board import option
+- Added full visual refresh after undo/redo/load
+
+### Testing
+- Added JUnit tests for undo/redo correctness
+- Added JUnit tests for serialization integrity
+- Added JUnit tests for custom board XML import
+
+---
 
 ## Known Issues
-- Minor UI scaling differences on high-DPI screens.
-- AI computation time increases with very large dictionaries.
+- Very large dictionaries may still slow down AI move generation
+- XML files must be properly formatted; no schema validation included
 
-## Next Steps
-- **Milestone 4:** Implement multi-level undo/redo, save/load, and custom board configuration.
+---
 
 ## AI Player Strategy
-The AI evaluates every dictionary word at every board position, horizontally and vertically.  
-For each candidate:
+The AI evaluates every dictionary word across all board positions in both orientations.  
+For each candidate word:
 
-1. Check boundary fit.
-2. Check legality via `Board.isValidPlacement(...)`.
-3. Simulate tile placement.
-4. Score using `Game.analyzeMove(...)` (includes DL/TL/DW/TW and blank tiles).
-5. Track the highest-scoring legal move.
+1. Check boundaries using `Board.isValidPlacement(...)`
+2. Verify tile availability (including blank substitution)
+3. Simulate placement
+4. Score using `Game.analyzeMove(...)`
+5. Select the highest scoring legal move
+
+---
+
+## Next Steps
+N/A
