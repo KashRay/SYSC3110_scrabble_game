@@ -25,7 +25,7 @@ public class AIPlayer extends Player implements Serializable {
      * @param firstTurn         Checks whether it's the first turn or not
      * @param letterFrequency   A map determining how many of each letter the AIPlayer has
      * @param totalBlanks       The number of blanks in the AIPlayer's hand
-     * @return  The score the move would earn
+     * @return  The score the mainWord would earn
      */
     private int getSimulatedScore(String word, int row, int col, boolean isHorizontal, Board board, Dictionary dictionary, boolean firstTurn, Map<Character, Integer> letterFrequency, int totalBlanks) {
         //Geometry and overlap check
@@ -68,7 +68,7 @@ public class AIPlayer extends Player implements Serializable {
 
         int score = -1;
         try { //Check everything
-            score = Game.analyzeMove(board, dictionary, tempTiles, firstTurn);
+            score = Game.analyzeMove(board, dictionary, tempTiles, firstTurn).totalScore();
         }
         catch (IllegalArgumentException _) { //Move is invalid
         }
@@ -80,16 +80,16 @@ public class AIPlayer extends Player implements Serializable {
     }
 
     /**
-     * Determines the best move the AIPlayer can make
+     * Determines the best mainWord the AIPlayer can make
      * 
      * @param dictionary    The dictionary that contains the list of eligible words
      * @param board         The board that the word is placed on
      * @param firstTurn     Checks whether it's the first turn or not
-     * @return  The move that would earn the most points
+     * @return  The mainWord that would earn the most points
      */
-    public Move getBestMove(Dictionary dictionary, Board board, boolean firstTurn) {
+    public AIMove getBestMove(Dictionary dictionary, Board board, boolean firstTurn) {
         Set<String> wordlist = dictionary.getWords();
-        Move bestMove = null;
+        AIMove bestAIMove = null;
         int maxScore = -1;
 
         //Pre-calculate hand frequency
@@ -109,21 +109,19 @@ public class AIPlayer extends Player implements Serializable {
                     int horizontalScore = getSimulatedScore(word, row, col, true, board, dictionary, firstTurn, letterFrequency, blankCount);
                     if (horizontalScore > maxScore) {
                         maxScore = horizontalScore;
-                        bestMove = new Move(word, row, col, true);
+                        bestAIMove = new AIMove(word, row, col, true);
                     }
                     //Try vertical
                     int verticalScore = getSimulatedScore(word, row, col, false, board, dictionary, firstTurn, letterFrequency, blankCount);
                     if (verticalScore > maxScore) {
                         maxScore = verticalScore;
-                        bestMove = new Move(word, row, col, false);
+                        bestAIMove = new AIMove(word, row, col, false);
                     }
 
                 }
             }
         }
-        System.out.println(this);
-        if (bestMove != null) System.out.println("Best move: " + bestMove.word());
-        else System.out.println("No best move");
-        return bestMove;
+
+        return bestAIMove;
     }
 }

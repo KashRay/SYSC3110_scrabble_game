@@ -96,10 +96,10 @@ public class GameTest {
         ai.addTile(new Tile('A', 1));
         ai.addTile(new Tile('T', 1));
 
-        Move move = ai.getBestMove(dict, board, true);
+        AIMove AIMove = ai.getBestMove(dict, board, true);
 
-        assertNotNull("AI should find a move using CAT", move);
-        assertEquals("CAT", move.word());
+        assertNotNull("AI should find a mainWord using CAT", AIMove);
+        assertEquals("CAT", AIMove.word());
     }
 
     @Test
@@ -114,9 +114,9 @@ public class GameTest {
         ai.addTile(new Tile('Q', 10));
         ai.addTile(new Tile('Z', 10));
 
-        Move move = ai.getBestMove(dict, board, true);
+        AIMove AIMove = ai.getBestMove(dict, board, true);
 
-        assertNull("AI should not find a move with unplayable letters", move);
+        assertNull("AI should not find a mainWord with unplayable letters", AIMove);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class GameTest {
         ai.addTile(new Tile('X', 8));
         ai.addTile(new Tile('E', 1));
 
-        Move move = ai.getBestMove(dict, board, true);
+        AIMove AIMove = ai.getBestMove(dict, board, true);
 
         assertNotNull(move);
         assertEquals("AXE", move.word());
@@ -153,10 +153,10 @@ public class GameTest {
         ai.addTile(new Tile('O', 1));
         ai.addTile(new Tile(' ', 0));
 
-        Move move = ai.getBestMove(dict, board, true);
+        AIMove AIMove = ai.getBestMove(dict, board, true);
 
-        assertNotNull("AI should use blank tile as G", move);
-        assertEquals("DOG", move.word());
+        assertNotNull("AI should use blank tile as G", AIMove);
+        assertEquals("DOG", AIMove.word());
     }
 
     @Test
@@ -172,9 +172,9 @@ public class GameTest {
         ai.addTile(new Tile('A', 1));
         ai.addTile(new Tile('T', 1));
 
-        Move move = ai.getBestMove(dict, board, true);
+        AIMove AIMove = ai.getBestMove(dict, board, true);
 
-        assertNull("AI should not place tiles on occupied center", move);
+        assertNull("AI should not place tiles on occupied center", AIMove);
     }
     private Board board;
 

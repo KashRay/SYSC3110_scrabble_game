@@ -1,7 +1,9 @@
+import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 /**
  * The Game class encapsulates the logic for a Scrabble game session.
@@ -134,6 +136,7 @@ public class Game implements Serializable {
      * Displays the winner and disables all game interactions in the views.
      */
     public void endGame() {
+        //Calculate the winner
         Player winner = players.getFirst();
         for (Player player : players) {
             if (winner.getScore() < player.getScore()) {
@@ -141,7 +144,33 @@ public class Game implements Serializable {
             }
         }
 
-        JOptionPane.showMessageDialog(null, winner.getName() + " is the Winner!!!");
+        //Creating string for end screen statistics
+        StringBuilder endScreen = new  StringBuilder();
+        endScreen.append("GAME OVER!\n");
+        endScreen.append(winner.getName()).append(" is the WINNER!\n");
+        endScreen.append("--- FINAL STATS ---\n");
+        for (Player player : players) {
+            endScreen.append("Player: ").append(player.getName()).append("\n");
+            endScreen.append("\tTotal Score: ").append(player.getScore()).append("\n");
+            endScreen.append("\tTurns Played: ").append(player.getTurnsTaken()).append("\n");
+            endScreen.append("\tWords Played:\n");
+            if (player.getRecordedMoves().isEmpty()) endScreen.append("\t(None)\n");
+            else {
+                for (PlayerMove move : player.getRecordedMoves()) {
+                    endScreen.append("\t").append(move.toString()).append("\n");
+                }
+            }
+            endScreen.append("\n");
+        }
+
+        //Display in a scrollable dialog
+        JTextArea textArea = new JTextArea(endScreen.toString());
+        textArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+        scrollPane.setPreferredSize(new Dimension(400, 500));
+        JOptionPane.showMessageDialog(null, scrollPane, "Game Results", JOptionPane.INFORMATION_MESSAGE);
+
+        //Disable views
         for (ScrabbleView view : views) {
             view.endGame();
         }
@@ -182,6 +211,8 @@ public class Game implements Serializable {
      * Moves to the next player's turn in a round-robin fashion.
      */
     public void nextTurn(boolean exchange) {
+        this.getCurrentPlayer().incrementTurns();
+
         if (exchange) {
             if (tileBag.isEmpty()) {
                 endPasses += 1;
@@ -204,8 +235,8 @@ public class Game implements Serializable {
         this.updateViewsTopText(this.getCurrentPlayer().getName() + "'s turn.");
         this.updateViewsHand();
         if (getCurrentPlayer() instanceof AIPlayer ai) {
-            Move move = ai.getBestMove(dictionary, board, firstTurn);
-            if (move != null) placeAIMove(move, firstTurn);
+            AIMove AIMove = ai.getBestMove(dictionary, board, firstTurn);
+            if (AIMove != null) placeAIMove(AIMove, firstTurn);
             else nextTurn(true);
         }
     }
@@ -239,7 +270,7 @@ public class Game implements Serializable {
     }
 
     /**
-     * Disables the "first move" mode in all views after the first valid play.
+     * Disables the "first mainWord" mode in all views after the first valid play.
      */
     public void disableViewsFirstMove() {
         for (ScrabbleView view : views) {
@@ -347,7 +378,7 @@ public class Game implements Serializable {
                 if (this.selectedTile.getScore() == 0) {
                     this.selectedTile.setLetter(' ');
                 }
-                JOptionPane.showMessageDialog(null, "ERROR! Invalid move. Position is either already occupied, or out of bounds.");
+                JOptionPane.showMessageDialog(null, "ERROR! Invalid mainWord. Position is either already occupied, or out of bounds.");
             }
         }
         return false;
@@ -409,7 +440,7 @@ public class Game implements Serializable {
     }
 
     /**
-     * Analyzes a move (list of tiles placed on the board) to see if it is valid
+     * Analyzes a mainWord (list of tiles placed on the board) to see if it is valid
      *
      * @param board        The current board
      * @param dictionary   The dictionary containing all the words
@@ -417,7 +448,7 @@ public class Game implements Serializable {
      * @param firstTurn    Checks if it is the firstTurn or not
      * @return The score if valid, throws IllegalArgumentException if invalid.
      */
-    public static int analyzeMove(Board board, Dictionary dictionary, List<Tile> tilesToCheck, boolean firstTurn) throws IllegalArgumentException {
+    public static PlayerMove analyzeMove(Board board, Dictionary dictionary, List<Tile> tilesToCheck, boolean firstTurn) throws IllegalArgumentException {
         if (tilesToCheck.isEmpty()) throw new IllegalArgumentException("ERROR! You have not placed any tiles.");
 
         boolean sameRow = true;
@@ -455,6 +486,7 @@ public class Game implements Serializable {
         if (firstTurn && board.getTile(Board.CENTER, Board.CENTER) == null) throw new IllegalArgumentException("ERROR! The first word must pass through the center.");
 
         int totalScore = 0;
+
         ArrayList<ArrayList<Tile>> allNewWords = new ArrayList<>();
 
         //Determine orientation for main word
@@ -483,7 +515,7 @@ public class Game implements Serializable {
                     break;
                 }
             }
-            if (!connects) throw new IllegalArgumentException("ERROR! The move must connect to an existing tile.");
+            if (!connects) throw new IllegalArgumentException("ERROR! The mainWord must connect to an existing tile.");
         }
 
         //If no new words were created (placed a tile without touching anything)
@@ -546,21 +578,22 @@ public class Game implements Serializable {
             }
         }
 
-        return totalScore;
+        return new PlayerMove(totalScore, tilesToString(mainWordTiles));
     }
 
     /**
-     * Updates the score of the player if their move is valid and adds tiles to their hand.
+     * Updates the score of the player if their mainWord is valid and adds tiles to their hand.
      * 
      * @param firstTurn     Checks if it is the firstTurn or not
-     * @return  whether the move was valid or not.
+     * @return  whether the mainWord was valid or not.
      */
     public boolean validateMove(boolean firstTurn) {
         try {
-            int score = analyzeMove(this.board, this.dictionary, placedTiles, firstTurn);
+            PlayerMove move = analyzeMove(this.board, this.dictionary, placedTiles, firstTurn);
 
-            //If valid (no exception), make move official
-            getCurrentPlayer().addScore(score);
+            //If valid (no exception), make mainWord official
+            getCurrentPlayer().addScore(move.totalScore());
+            getCurrentPlayer().addMove(move);
 
             //Add tiles to current players hand. 
             if (!tileBag.isEmpty()) {
@@ -580,25 +613,25 @@ public class Game implements Serializable {
             return true;
         }
         catch (IllegalArgumentException e) {
-            //Send message as to why their move was illegal
+            //Send message as to why their mainWord was illegal
             updateViewsTopText(e.getMessage());
             return false;
         }
     }
 
     /**
-     * Performs the logic for an AI to make a move
+     * Performs the logic for an AI to make a mainWord
      * 
-     * @param move          The AI's move
-     * @param firstTurn     Checks if it is the firstTurn or not
+     * @param AIMove the AI's mainWord
+     * @param firstTurn checks if it is the firstTurn or not
     */
-    public void placeAIMove(Move move, boolean firstTurn) {
-        int row = move.startRow();
-        int col = move.startCol();
+    public void placeAIMove(AIMove AIMove, boolean firstTurn) {
+        int row = AIMove.startRow();
+        int col = AIMove.startCol();
 
         //Place every tile on the board
-        for (int i = 0; i < move.word().length(); i++) {
-            char letter = move.word().charAt(i);
+        for (int i = 0; i < AIMove.word().length(); i++) {
+            char letter = AIMove.word().charAt(i);
 
             if (board.getTile(row, col) == null) {
                 Tile tile = getCurrentPlayer().removeTileByLetter(letter);
@@ -614,7 +647,7 @@ public class Game implements Serializable {
                     placedTiles.add(tile);
                 }
             }
-            if (move.isHorizontal()) col++;
+            if (AIMove.isHorizontal()) col++;
             else row++;
         }
 
