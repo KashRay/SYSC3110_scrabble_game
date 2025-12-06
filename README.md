@@ -70,16 +70,6 @@ This milestone also includes:
 
 ---
 
-## Running Instructions
-
-To run the program, open a terminal and enter:
-
-```bash  
-java -jar Scrabble.jar  
-```
-
----
-
 ## Authors
 - Abdullah Khan    101305235
 - Adrian Joaquin   101226876
